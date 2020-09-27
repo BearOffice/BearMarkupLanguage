@@ -21,7 +21,7 @@
  reader.ChangeValue("Key A", "New Value A");  
  reader.GetValue("Key A");  
  ```
->Value A  
+>New Value A  
   
  Add a key.  
  `reader.AddConf(new[] { "Key C,Value C", "Key D,Value D" });`  
