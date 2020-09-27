@@ -17,7 +17,8 @@
 >Value A  
   
  Change a key's value.  
- ```reader.ChangeValue("Key A", "New Value A");  
+ ```
+ reader.ChangeValue("Key A", "New Value A");  
  reader.GetValue("Key A");  
  ```
 >Value A  
