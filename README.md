@@ -12,7 +12,7 @@
  `reader.GetValue("Key A");`  
 >Value A  
   
- Try to get key's value. This method returns bool.  
+ Try to get the key's value. This method returns true while the key specified exists.  
  `reader.TryGetValue("Key A", out string value);`  
 >Value A  
   
