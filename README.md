@@ -3,7 +3,7 @@
   
 # Memo
  Create a new conf file.  
- `ConfReader.Create(new[] { "Key A,Value A", "Key B,Value B,Comment B" }, "myapp.conf");`  
+ `ConfReader.Create(new[] { ("Key A", "Value A", ""), ("Key B", "Value B", "Comment B") }, "myapp.conf");`  
   
  Read a config file.  
  `var reader = new ConfReader("myapp.conf");`  
@@ -14,7 +14,7 @@
   
  Try to get the key's value. This method returns true while the key specified exists.  
  `reader.TryGetValue("Key A", out string value);`  
->Value A  
+>True  
   
  Change a key's value.  
  ```
@@ -24,4 +24,4 @@
 >New Value A  
   
  Add a key.  
- `reader.AddConf(new[] { "Key C,Value C", "Key D,Value D" });`  
+ `reader.AddConf(new[] { ("Key C", "Value C", ""), ("Key D", "Value D", "") });`  
