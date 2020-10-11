@@ -45,5 +45,5 @@
  {  
      [typeof(double)] = x => x.ToString(),  
  };  
- reader.SaveProperties(this, rule, strict: true);  
+ reader.SaveProperties(this, rule);  
  ```
