@@ -111,6 +111,7 @@ namespace ConfReaderLib
 
         /// <summary>
         /// Set the class's properties specified automatically.
+        /// <para>Char ' ' in keys would be considered as '_'.</para>
         /// </summary>
         /// <param name="obj">Class object.</param>
         /// <param name="rule">Parse rule.</param>
@@ -127,6 +128,7 @@ namespace ConfReaderLib
 
         /// <summary>
         /// Set the class's fields specified automatically.
+        /// <para>Char ' ' in keys would be considered as '_'.</para>
         /// </summary>
         /// <param name="obj">Class object.</param>
         /// <param name="rule">Parse rule.</param>
@@ -241,6 +243,7 @@ namespace ConfReaderLib
 
         /// <summary>
         /// Save the class's properties specified automatically.
+        /// <para>Char ' ' in keys would be considered as '_'.</para>
         /// </summary>
         /// <param name="obj">Class object.</param>
         /// <param name="rule">Parse rule.</param>
@@ -257,6 +260,7 @@ namespace ConfReaderLib
 
         /// <summary>
         /// Save the class's fields specified automatically.
+        /// <para>Char ' ' in keys would be considered as '_'.</para>
         /// </summary>
         /// <param name="obj">Class object.</param>
         /// <param name="rule">Parse rule.</param>

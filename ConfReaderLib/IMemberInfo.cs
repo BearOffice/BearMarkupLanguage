@@ -26,7 +26,7 @@ namespace ConfReaderLib
         }
         public bool Find(string key)
         {
-            _property = _properties.FirstOrDefault(x => string.Compare(x.Name, key, ignoreCase: true) == 0);
+            _property = _properties.FirstOrDefault(x => string.Compare(x.Name, key.Replace(' ', '_'), ignoreCase: true) == 0);
             if (_property == null) return false;
             return true;
         }
@@ -49,7 +49,7 @@ namespace ConfReaderLib
         }
         public bool Find(string key)
         {
-            _field = _fields.FirstOrDefault(x => string.Compare(x.Name, key, ignoreCase: true) == 0);
+            _field = _fields.FirstOrDefault(x => string.Compare(x.Name, key.Replace(' ', '_'), ignoreCase: true) == 0);
             if (_field == null) return false;
             return true;
         }

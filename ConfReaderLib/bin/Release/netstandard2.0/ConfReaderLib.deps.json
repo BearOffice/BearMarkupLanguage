@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.0": {},
     ".NETStandard,Version=v2.0/": {
-      "ConfReaderLib/1.0.2": {
+      "ConfReaderLib/1.0.3": {
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
           "NETStandard.Library": "2.0.3"
@@ -33,7 +33,7 @@
     }
   },
   "libraries": {
-    "ConfReaderLib/1.0.2": {
+    "ConfReaderLib/1.0.3": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -52,6 +52,7 @@
         <member name="M:ConfReaderLib.ConfReader.SetProperties(System.Object,ConfReaderLib.ParseFromString,System.String[],System.Boolean)">
             <summary>
             Set the class's properties specified automatically.
+            <para>Char ' ' in keys would be considered as '_'.</para>
             </summary>
             <param name="obj">Class object.</param>
             <param name="rule">Parse rule.</param>
@@ -67,6 +68,7 @@
         <member name="M:ConfReaderLib.ConfReader.SetFields(System.Object,ConfReaderLib.ParseFromString,System.String[],System.Boolean)">
             <summary>
             Set the class's fields specified automatically.
+            <para>Char ' ' in keys would be considered as '_'.</para>
             </summary>
             <param name="obj">Class object.</param>
             <param name="rule">Parse rule.</param>
@@ -137,6 +139,7 @@
         <member name="M:ConfReaderLib.ConfReader.SaveProperties(System.Object,ConfReaderLib.ParseToString,System.String[],System.Boolean)">
             <summary>
             Save the class's properties specified automatically.
+            <para>Char ' ' in keys would be considered as '_'.</para>
             </summary>
             <param name="obj">Class object.</param>
             <param name="rule">Parse rule.</param>
@@ -152,6 +155,7 @@
         <member name="M:ConfReaderLib.ConfReader.SaveFields(System.Object,ConfReaderLib.ParseToString,System.String[],System.Boolean)">
             <summary>
             Save the class's fields specified automatically.
+            <para>Char ' ' in keys would be considered as '_'.</para>
             </summary>
             <param name="obj">Class object.</param>
             <param name="rule">Parse rule.</param>
