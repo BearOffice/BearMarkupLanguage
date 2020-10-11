@@ -25,3 +25,25 @@
   
  Add a key.  
  `reader.AddConf(new[] { ("Key C", "Value C", ""), ("Key D", "Value D", "") });`  
+  
+ Set the class's properties specified automatically(directly).  
+ ```
+ public int FontSize { get; set; }  
+ public double FontOpacity { get; set; }  
+ ```
+ ```
+ var rule = new ParseFromString()  
+ {  
+     [typeof(double)] = x => double.Parse(x),  // Default contains the rules of the type 'int' and 'string'.  
+ };  
+ reader.SetProperties(this, rule);  
+ ```
+  
+ Save the class's properties specified to the config file automatically(directly).  
+ ```
+ var rule = new ParseToString()  
+ {  
+     [typeof(double)] = x => x.ToString(),  
+ };  
+ reader.SaveProperties(this, rule, strict: true);  
+ ```

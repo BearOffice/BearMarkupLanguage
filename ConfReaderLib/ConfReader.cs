@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace ConfReaderLib
 {
@@ -14,7 +16,6 @@ namespace ConfReaderLib
         private readonly Dictionary<string, string> _pairs = new Dictionary<string, string>();
         private readonly string _path;
         private readonly string _symbol;
-        private readonly bool _strict;
 
         /// <summary>
         /// Read Config File.
@@ -38,7 +39,6 @@ namespace ConfReaderLib
         {
             this._path = path;
             this._symbol = symbol;
-            this._strict = strict;
 
             _rawconf = File.ReadAllLines(_path).ToList();
 
@@ -51,7 +51,7 @@ namespace ConfReaderLib
                     else
                         throw new BadConfException("Key should be unique.");
                 }
-                else if (!isblank && _strict)
+                else if (!isblank && strict)
                 {
                     throw new BadConfException("Config file is invalid.");
                 }
@@ -84,6 +84,62 @@ namespace ConfReaderLib
                 return false;
             }
         }
+
+        private void Reflection(object obj, dynamic rule, bool isprop, bool isset, string[] keys = null, bool strict = false)
+        {
+            if (keys == null) keys = GetAllKeys();
+            IMemberInfo members;
+            if (isprop)
+                members = new PropInfo(obj);
+            else
+                members = new FldInfo(obj);
+
+            foreach (var key in keys)
+            {
+                if (members.Find(key))
+                {
+                    if (isset)
+                        members.SetValue(obj, rule[members.MemberType].Invoke(GetValue(key)));
+                    else
+                        ChangeValue(key, rule[members.MemberType].Invoke(members.GetValue(obj)), save: false);
+                }
+                else if (strict)
+                    throw new BadConfException($"The specified key \"{key}\" not found.");
+            }
+            if (!isset) SaveConf();
+        }
+
+        /// <summary>
+        /// Set the class's properties specified automatically.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be set. 
+        /// Default: Set all keys contained in the config file.
+        /// </param>
+        /// <param name="strict">
+        /// If ture, any key that does not be set to the property will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetProperties(object obj, ParseFromString rule, string[] keys = null, bool strict = false)
+            => Reflection(obj, rule, isprop: true, isset: true, keys, strict);
+
+        /// <summary>
+        /// Set the class's fields specified automatically.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be set. 
+        /// Default: Set all keys contained in the config file.
+        /// </param>
+        /// <param name="strict">
+        /// If ture, any key that does not be set to the field will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetFields(object obj, ParseFromString rule, string[] keys = null, bool strict = false)
+            => Reflection(obj, rule, isprop: false, isset: true, keys, strict);
 
         /// <summary>
         /// Get all keys existed in config.
@@ -124,7 +180,7 @@ namespace ConfReaderLib
             if (TryGetValue(key, out string value))
                 return value;
             else
-                throw new BadConfException("The specified key not found.");
+                throw new BadConfException($"The specified key \"{key}\" not found.");
         }
 
         /// <summary>
@@ -155,7 +211,7 @@ namespace ConfReaderLib
         public void ChangeValue(string key, string value, bool save = true)
         {
             if (!TryChangeValue(key, value, save))
-                throw new BadConfException($"The key \"{key}\" does not exist.");
+                throw new BadConfException($"The specified key \"{key}\" not found.");
         }
 
         /// <summary>
@@ -171,7 +227,7 @@ namespace ConfReaderLib
                 if (!_pairs.ContainsKey(key))
                     _pairs.Add(key, value);
                 else
-                    throw new BadConfException($"The key \"{key}\" already exist.");
+                    throw new BadConfException($"The specified key \"{key}\" already exist.");
 
                 if (comment == "")
                     _rawconf.Add($"{key} = {value}");
@@ -182,6 +238,38 @@ namespace ConfReaderLib
             if (save)
                 SaveConf();
         }
+
+        /// <summary>
+        /// Save the class's properties specified automatically.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be save. 
+        /// Default: Save all keys contained in the config file.
+        /// </param>
+        /// <param name="strict">
+        /// If ture, any key that does not be saved from the property will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SaveProperties(object obj, ParseToString rule, string[] keys = null, bool strict = false)
+            => Reflection(obj, rule, isprop: true, isset: false, keys, strict);
+
+        /// <summary>
+        /// Save the class's fields specified automatically.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be save. 
+        /// Default: Save all keys contained in the config file.
+        /// </param>
+        /// <param name="strict">
+        /// If ture, any key that does not be saved from the field will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SaveFields(object obj, ParseToString rule, string[] keys = null, bool strict = false)
+            => Reflection(obj, rule, isprop: false, isset: false, keys, strict);
 
         /// <summary>
         /// Save configs to the config file immediately.
