@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ConfReaderLib
@@ -24,13 +24,16 @@ namespace ConfReaderLib
     }
 
     /// <summary>
-    /// Set the rules for parsing properties or fields' values to the config file.
-    /// Default contains the rules of the type 'int' and 'string'.
-    /// <para>Class ParseToString can be used like above:</para>
-    /// <para>var rule = new ParseToString() { [typeof(int)] = x => x.ToString() };</para>
+    /// ParseToString
     /// </summary>
     public class ParseToString : ParseRule<object, string>
     {
+        /// <summary>
+        /// Set the rules for parsing properties or fields' values to the config file.
+        /// Default contains the rules of the type 'int' and 'string'.
+        /// <para>Class ParseToString can be used like above:</para>
+        /// <para>var rule = new ParseToString() { [typeof(int)] = x => x.ToString() };</para>
+        /// </summary>
         public ParseToString()
         {
             base[typeof(int)] = x => x.ToString();
@@ -39,13 +42,16 @@ namespace ConfReaderLib
     }
 
     /// <summary>
-    /// Set the rules for parsing the config file to properties or fields' values.
-    /// Default contains the rules of the type 'int' and 'string'.
-    /// <para>Class ParseToString can be used like above:</para>
-    /// <para>var rule = new ParseFromString() { [typeof(int)] = x => int.Parse(x) };</para>
+    /// ParseFromString
     /// </summary>
     public class ParseFromString : ParseRule<string, object>
     {
+        /// <summary>
+        /// Set the rules for parsing the config file to properties or fields' values.
+        /// Default contains the rules of the type 'int' and 'string'.
+        /// <para>Class ParseToString can be used like above:</para>
+        /// <para>var rule = new ParseFromString() { [typeof(int)] = x => int.Parse(x) };</para>
+        /// </summary>
         public ParseFromString()
         {
             base[typeof(int)] = x => int.Parse(x);
