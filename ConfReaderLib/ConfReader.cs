@@ -83,28 +83,17 @@ namespace ConfReaderLib
             }
         }
 
-        private void Reflection(object obj, dynamic rule, bool isprop, bool isset, string[] keys = null, bool strict = false)
+        private void Reflection(object obj, IMemberInfo members, ParseFromString rule, string[] keys = null, bool strict = false)
         {
             if (keys == null) keys = GetAllKeys();
-            IMemberInfo members;
-            if (isprop)
-                members = new PropInfo(obj);
-            else
-                members = new FldInfo(obj);
 
             foreach (var key in keys)
             {
                 if (members.Find(key))
-                {
-                    if (isset)
-                        members.SetValue(obj, rule[members.MemberType].Invoke(GetValue(key)));
-                    else
-                        ChangeValue(key, rule[members.MemberType].Invoke(members.GetValue(obj)), save: false);
-                }
+                    members.SetValue(obj, rule[members.MemberType].Invoke(GetValue(key)));
                 else if (strict)
                     throw new BadConfException($"The specified key \"{key}\" not found.");
             }
-            if (!isset) SaveConf();
         }
 
         /// <summary>
@@ -122,7 +111,7 @@ namespace ConfReaderLib
         /// </param>
         /// <exception cref="BadConfException"></exception>
         public void SetProperties(object obj, ParseFromString rule, string[] keys = null, bool strict = false)
-            => Reflection(obj, rule, isprop: true, isset: true, keys, strict);
+            => Reflection(obj, new PropInfo(obj), rule, keys, strict);
 
         /// <summary>
         /// Set the class's fields specified automatically.
@@ -139,7 +128,7 @@ namespace ConfReaderLib
         /// </param>
         /// <exception cref="BadConfException"></exception>
         public void SetFields(object obj, ParseFromString rule, string[] keys = null, bool strict = false)
-            => Reflection(obj, rule, isprop: false, isset: true, keys, strict);
+            => Reflection(obj, new FldInfo(obj), rule, keys, strict);
 
         /// <summary>
         /// Get all keys existed in config.
@@ -239,6 +228,20 @@ namespace ConfReaderLib
                 SaveConf();
         }
 
+        private void Reflection(object obj, IMemberInfo members, ParseToString rule, string[] keys = null, bool strict = false)
+        {
+            if (keys == null) keys = GetAllKeys();
+
+            foreach (var key in keys)
+            {
+                if (members.Find(key))
+                    ChangeValue(key, rule[members.MemberType].Invoke(members.GetValue(obj)), save: false);
+                else if (strict)
+                    throw new BadConfException($"The specified key \"{key}\" not found.");
+            }
+            SaveConf();
+        }
+
         /// <summary>
         /// Save the class's properties specified automatically.
         /// <para>Char ' ' in keys would be considered as '_'.</para>
@@ -254,7 +257,7 @@ namespace ConfReaderLib
         /// </param>
         /// <exception cref="BadConfException"></exception>
         public void SaveProperties(object obj, ParseToString rule, string[] keys = null, bool strict = false)
-            => Reflection(obj, rule, isprop: true, isset: false, keys, strict);
+            => Reflection(obj, new PropInfo(obj), rule, keys, strict);
 
         /// <summary>
         /// Save the class's fields specified automatically.
@@ -271,7 +274,7 @@ namespace ConfReaderLib
         /// </param>
         /// <exception cref="BadConfException"></exception>
         public void SaveFields(object obj, ParseToString rule, string[] keys = null, bool strict = false)
-            => Reflection(obj, rule, isprop: false, isset: false, keys, strict);
+            => Reflection(obj, new FldInfo(obj), rule, keys, strict);
 
         /// <summary>
         /// Save configs to the config file immediately.
