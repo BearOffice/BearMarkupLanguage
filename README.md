@@ -1,12 +1,18 @@
-# ConfReaderLib
+# ConfigReadingLib
  A class library to read or modify the config file reliably.  
   
 # Memo
- Create a new conf file.  
- `ConfReader.Create(new[] { ("Key A", "Value A", ""), ("Key B", "Value B", "Comment B") }, "myapp.conf");`  
+ Create a new config file.  
+ ```
+ ConfigReader.Create(new ConfigInfo[]  
+ {  
+     new ConfigInfo { Key = "Key A", Value = "Value A" },  
+     new ConfigInfo { Key = "Key B", Value = "Value B", Comment = "Comment B" }  
+ }, "myapp.conf");  
+ ```
   
  Read a config file.  
- `var reader = new ConfReader("myapp.conf");`  
+ `var reader = new ConfigReader("myapp.conf");`  
   
  Get key's value.  
  `reader.GetValue("Key A");`  
@@ -23,27 +29,31 @@
  ```
 >New Value A  
   
- Add a key.  
- `reader.AddConf(new[] { ("Key C", "Value C", ""), ("Key D", "Value D", "") });`  
+ Add new keys.  
+ ```
+ reader.AddConfig(new ConfigInfo[]  
+ {  
+     new ConfigInfo{Key = "Key C" , Value = "Value C"},  
+     new ConfigInfo {Key = "Key D" , Value ="Value D" , Comment =  "Comment B"}  
+ });  
+ ```
   
- Set the class's properties specified automatically(directly).  
+ Set all properties value contained within the class specified from the existent keys.  
  ```
  public int FontSize { get; set; }  
  public double FontOpacity { get; set; }  
  ```
  ```
- var rule = new ParseFromString()  
+ reader.SetPropertiesFromKeys(this, new ParseFromString  
  {  
-     [typeof(double)] = x => double.Parse(x),  // Default contains the rules of the type 'int' and 'string'.  
- };  
- reader.SetProperties(this, rule);  
+     [typeof(double)] = x => double.Parse(x)  // Default contains the following parsing rules: 'int', 'string'.  
+ });  
  ```
   
- Save the class's properties specified to the config file automatically(directly).  
+ Save all properties value contained within the class specified to the existent keys.  
  ```
- var rule = new ParseToString()  
+ reader.SavePropertiesToKeys(this, new ParseToString  
  {  
-     [typeof(double)] = x => x.ToString(),  
- };  
- reader.SaveProperties(this, rule);  
+     [typeof(double)] = x => x.ToString()  
+ });  
  ```

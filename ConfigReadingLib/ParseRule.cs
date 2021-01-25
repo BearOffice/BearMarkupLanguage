@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace ConfReaderLib
+namespace ConfigReadingLib
 {
     public abstract class ParseRule<T1, T2>
     {
@@ -14,7 +14,7 @@ namespace ConfReaderLib
                 if (rules.TryGetValue(type, out var func))
                     return func;
                 else
-                    throw new BadConfException("Rule not found.");
+                    throw new BadConfException($"Parse rule for type '{type}' not found.");
             }
             set
             {
@@ -30,7 +30,7 @@ namespace ConfReaderLib
     {
         /// <summary>
         /// Set the rules for parsing properties or fields' values to the config file.
-        /// Default contains the rules of the type 'int' and 'string'.
+        /// Default contains the following rules: type 'int', 'string'.
         /// <para>Class ParseToString can be used like above:</para>
         /// <para>var rule = new ParseToString() { [typeof(int)] = x => x.ToString() };</para>
         /// </summary>
@@ -48,7 +48,7 @@ namespace ConfReaderLib
     {
         /// <summary>
         /// Set the rules for parsing the config file to properties or fields' values.
-        /// Default contains the rules of the type 'int' and 'string'.
+        /// Default contains the following rules: type 'int', 'string'.
         /// <para>Class ParseToString can be used like above:</para>
         /// <para>var rule = new ParseFromString() { [typeof(int)] = x => int.Parse(x) };</para>
         /// </summary>
