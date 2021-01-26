@@ -3,10 +3,20 @@ using System.Collections.Generic;
 
 namespace ConfigReadingLib
 {
+    /// <summary>
+    /// ParseRule.
+    /// </summary>
+    /// <typeparam name="T1"></typeparam>
+    /// <typeparam name="T2"></typeparam>
     public abstract class ParseRule<T1, T2>
     {
         private readonly Dictionary<Type, Func<T1, T2>> rules = new Dictionary<Type, Func<T1, T2>>();
 
+        /// <summary>
+        /// Parse rule.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public Func<T1, T2> this[Type type]
         {
             get
@@ -24,7 +34,7 @@ namespace ConfigReadingLib
     }
 
     /// <summary>
-    /// ParseToString
+    /// ParseToString.
     /// </summary>
     public class ParseToString : ParseRule<object, string>
     {
@@ -42,7 +52,7 @@ namespace ConfigReadingLib
     }
 
     /// <summary>
-    /// ParseFromString
+    /// ParseFromString.
     /// </summary>
     public class ParseFromString : ParseRule<string, object>
     {

@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "ConfigReadingLib/1.1.0": {
+      "ConfigReadingLib/2.0.0": {
         "runtime": {
           "ConfigReadingLib.dll": {}
         }
@@ -15,7 +15,7 @@
     }
   },
   "libraries": {
-    "ConfigReadingLib/1.1.0": {
+    "ConfigReadingLib/2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

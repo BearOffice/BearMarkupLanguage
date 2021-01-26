@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ConfigReadingLib.Member;
 
 namespace ConfigReadingLib
 {
@@ -12,8 +14,8 @@ namespace ConfigReadingLib
     /// </summary>
     public class ConfigReader
     {
-        private readonly List<string> _rawConfig;
-        private readonly Dictionary<string, string> _configDic = new Dictionary<string, string>();
+        private string[] _rawConfigs;
+        private readonly Dictionary<string, ConfigInfo> _configDic = new Dictionary<string, ConfigInfo>();
         private readonly string _path;
         private readonly string _symbol;
 
@@ -30,8 +32,7 @@ namespace ConfigReadingLib
         /// <param name="path">The path Specified is exist.</param>
         /// <param name="symbol">Comment out symbol to set. Default is '//'.</param>
         /// <param name="strict">
-        /// If true, the config file's format will be checked strictly.
-        /// Any meaningless chars will not be accepted.
+        /// If true, any meaningless line in config file will not be accepted.
         /// </param>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="BadConfException"></exception>
@@ -39,16 +40,16 @@ namespace ConfigReadingLib
         {
             _path = path;
             _symbol = symbol;
-            _rawConfig = File.ReadAllLines(_path).ToList();
+            _rawConfigs = File.ReadAllLines(_path);
 
-            foreach (var line in _rawConfig)
+            foreach (var line in _rawConfigs)
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
 
                 if (LineInterpreter(line, out _) is ConfigInfo configinfo)
                 {
                     if (!_configDic.ContainsKey(configinfo.Key))
-                        _configDic.Add(configinfo.Key, configinfo.Value);
+                        _configDic.Add(configinfo.Key, configinfo);
                     else
                         throw new BadConfException("Key should be unique.");
                 }
@@ -59,95 +60,28 @@ namespace ConfigReadingLib
             }
         }
 
-        private ConfigInfo? LineInterpreter(string line, out (string left, string right) rawline)
+        private ConfigInfo? LineInterpreter(string line, out string patterntext)
         {
-            var comment = Regex.Match(line, $@"\s*{_symbol}.*").Value;
+            var comment = Regex.Match(line, $@"\s*({_symbol}.*)$").Groups[1].Value;
+            var uncmtline = Regex.Replace(line, $@"(\s*){_symbol}.*$", "$1");
+            var pairmatch = Regex.Match(uncmtline, @"^\s*(\S|\S.*?\S)\s*=\s*(\S|\S.*\S)\s*$");
 
-            var uncommentline = Regex.Replace(line, comment, "");
-            var left = Regex.Match(uncommentline, @"(\S|\S.*?\S)\s*=");
-            var right = Regex.Match(uncommentline, @"=\s*(\S.*\S|\S)");
-
-            rawline = (left.Value, right.Value);
-
-            if (left.Success && right.Success)
+            if (pairmatch.Success)
             {
+                patterntext = Regex.Replace(uncmtline, @"^(\s*)(\S|\S.*?\S)(\s*)=(\s*)(\S|\S.*\S)(\s*)$", "$1#0$3=$4#1$6#2");
                 return new ConfigInfo
                 {
-                    Key = left.Groups[1].Value,
-                    Value = right.Groups[1].Value,
+                    Key = pairmatch.Groups[1].Value,
+                    Value = pairmatch.Groups[2].Value,
                     Comment = comment
                 };
             }
             else
             {
+                patterntext = line;
                 return null;
             }
         }
-
-        private void Reflection(IMember members, ParseFromString rule, string[] keys, bool exactmatch)
-        {
-            foreach (var key in keys)
-            {
-                if (members.HasMember(key))
-                    members.SetValue(key, rule[members.GetMemberType(key)].Invoke(GetValue(key)));
-                else if (exactmatch)
-                    throw new BadConfException($"The specified key \"{key}\" not found.");
-            }
-        }
-
-        /// <summary>
-        /// Set all properties value contained within the class specified from the existent keys.
-        /// </summary>
-        /// <param name="obj">Class object.</param>
-        /// <param name="rule">Parse rule.</param>
-        /// <param name="exactmatch">
-        /// If true, any property failed to set value from the keys will throw exception.
-        /// </param>
-        /// <exception cref="BadConfException"></exception>
-        public void SetPropertiesFromKeys(object obj, ParseFromString rule, bool exactmatch = false)
-            => Reflection(new PropertyMember(obj), rule, GetAllKeys(), exactmatch);
-
-        /// <summary>
-        /// Set properties value contained within the class specified from the existent keys.
-        /// </summary>
-        /// <param name="obj">Class object.</param>
-        /// <param name="rule">Parse rule.</param>
-        /// <param name="keys">
-        /// Specify the keys that need to be set. 
-        /// </param>
-        /// <param name="exactmatch">
-        /// If true, any property failed to set value from the keys will throw exception.
-        /// </param>
-        /// <exception cref="BadConfException"></exception>
-        public void SetPropertiesFromKeys(object obj, ParseFromString rule, string[] keys, bool exactmatch = false)
-            => Reflection(new PropertyMember(obj), rule, keys, exactmatch);
-
-        /// <summary>
-        /// Set all fields value contained within the class specified from the existent keys.
-        /// </summary>
-        /// <param name="obj">Class object.</param>
-        /// <param name="rule">Parse rule.</param>
-        /// <param name="exactmatch">
-        /// If true, any field failed to set value from the keys will throw exception.
-        /// </param>
-        /// <exception cref="BadConfException"></exception>
-        public void SetFieldsFromKeys(object obj, ParseFromString rule, bool exactmatch = false)
-            => Reflection(new FieldMember(obj), rule, GetAllKeys(), exactmatch);
-
-        /// <summary>
-        /// Set fields value contained within the class specified from the existent keys.
-        /// </summary>
-        /// <param name="obj">Class object.</param>
-        /// <param name="rule">Parse rule.</param>
-        /// <param name="keys">
-        /// Specify the keys that need to be set.
-        /// </param>
-        /// <param name="exactmatch">
-        /// If true, any field failed to set value from the keys will throw exception.
-        /// </param>
-        /// <exception cref="BadConfException"></exception>
-        public void SetFieldsFromKeys(object obj, ParseFromString rule, string[] keys = null, bool exactmatch = false)
-            => Reflection(new FieldMember(obj), rule, keys, exactmatch);
 
         /// <summary>
         /// Get all keys existed in the config file.
@@ -156,7 +90,7 @@ namespace ConfigReadingLib
         public string[] GetAllKeys()
         {
             var keys = new List<string>();
-            _configDic.ToList().ForEach(pair => keys.Add(pair.Key));
+            _configDic.ToList().ForEach(configinfo => keys.Add(configinfo.Key));
             return keys.ToArray();
         }
 
@@ -175,7 +109,11 @@ namespace ConfigReadingLib
         /// <param name="value"></param>
         /// <returns>true if config contains an element with the specified key; otherwise, false.</returns>
         public bool TryGetValue(string key, out string value)
-            => _configDic.TryGetValue(key, out value);
+        {
+            var result = _configDic.TryGetValue(key, out var configinfo);
+            value = configinfo.Value;
+            return result;
+        }
 
         /// <summary>
         /// Get the value associated with the specified key.
@@ -203,9 +141,14 @@ namespace ConfigReadingLib
             if (!_configDic.ContainsKey(key))
                 return false;
 
-            _configDic[key] = value;
-            if (save)
-                SaveChanges();
+            _configDic[key] = new ConfigInfo
+            {
+                Key = key,
+                Value = value,
+                Comment = _configDic[key].Comment
+            };
+
+            if (save) SaveChanges();
             return true;
         }
 
@@ -225,36 +168,151 @@ namespace ConfigReadingLib
         /// <summary>
         /// Add configs.
         /// </summary>
-        /// <param name="configInfos">ConfigInfos.</param>
+        /// <param name="configinfos">ConfigInfos.</param>
+        /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
-        public void AddConfig(ConfigInfo[] configInfos, bool save = true)
+        public void AddConfig(ConfigInfo[] configinfos, bool overwrite = false, bool save = true)
         {
-            foreach (var conf in configInfos)
+            foreach (var configinfo in configinfos)
             {
-                if (!_configDic.ContainsKey(conf.Key))
-                    _configDic.Add(conf.Key, conf.Value);
+                if (!_configDic.ContainsKey(configinfo.Key))
+                    _configDic.Add(configinfo.Key, new ConfigInfo
+                    {
+                        Key = configinfo.Key,
+                        Value = configinfo.Value,
+                        Comment = $"{_symbol} {configinfo.Comment}"
+                    });
+                else if (overwrite)
+                    _configDic[configinfo.Key] = configinfo;
                 else
-                    throw new BadConfException($"The specified key \"{conf.Key}\" already exist.");
-
-                var rawline = $"{conf.Key} = {conf.Value}";
-                rawline += (conf.Comment == "") ? "" : $"  {_symbol} {conf.Comment}";
-
-                _rawConfig.Add(rawline);
+                    throw new BadConfException($"The specified key \"{configinfo.Key}\" already existed.");
             }
 
             if (save) SaveChanges();
         }
 
-        private void Reflection(IMember members, ParseToString rule, string[] keys, bool exactmatch, bool save)
+        /// <summary>
+        /// Add a config.
+        /// </summary>
+        /// <param name="configinfo">ConfigInfo.</param>
+        /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <exception cref="BadConfException"></exception>
+        public void AddConfig(ConfigInfo configinfo, bool overwrite = false, bool save = true)
+            => AddConfig(new ConfigInfo[] { configinfo }, overwrite, save);
+
+        /// <summary>
+        /// Remove configs.
+        /// </summary>
+        /// <param name="keys">Keys to remove.</param>
+        /// <param name="strict">If true, any key failed to remove will throw exception.</param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <exception cref="BadConfException"></exception>
+        public void RemoveConfig(string[] keys, bool strict = true, bool save = true)
         {
             foreach (var key in keys)
             {
-                if (members.HasMember(key))
+                if (_configDic.ContainsKey(key))
+                    _configDic.Remove(key);
+                else if (strict)
+                    throw new BadConfException($"The specified key \"{key}\" not found.");
+            }
+
+            if (save) SaveChanges();
+        }
+
+        /// <summary>
+        /// Remove a config.
+        /// </summary>
+        /// <param name="key">Key to remove.</param>
+        /// <param name="strict">If true, any key failed to remove will throw exception.</param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <exception cref="BadConfException"></exception>
+        public void RemoveConfig(string key, bool strict = true, bool save = true)
+            => RemoveConfig(new[] { key }, strict, save);
+
+        private void Reflection(IMembers members, ParseFromString rule, string[] keys, bool exactmatch)
+        {
+            foreach (var key in keys)
+            {
+                var member = members.GetMember(key);
+                if (member != null)
+                    member.SetValue(rule[member.MemberType].Invoke(_configDic[key].Value));
+                else if (exactmatch)
+                    throw new BadConfException($"The specified key \"{key}\" not found.");
+            }
+        }
+
+        /// <summary>
+        /// Set all properties value contained within the class specified from the existent keys.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="exactmatch">
+        /// If true, any property failed to set value from the keys will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetPropertiesFromKeys(object obj, ParseFromString rule, bool exactmatch = false)
+            => Reflection(new PropertyMembers(obj), rule, GetAllKeys(), exactmatch);
+
+        /// <summary>
+        /// Set properties value contained within the class specified from the existent keys.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be set. 
+        /// </param>
+        /// <param name="exactmatch">
+        /// If true, any property failed to set value from the keys will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetPropertiesFromKeys(object obj, ParseFromString rule, string[] keys, bool exactmatch = false)
+            => Reflection(new PropertyMembers(obj), rule, keys, exactmatch);
+
+        /// <summary>
+        /// Set all fields value contained within the class specified from the existent keys.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="exactmatch">
+        /// If true, any field failed to set value from the keys will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetFieldsFromKeys(object obj, ParseFromString rule, bool exactmatch = false)
+            => Reflection(new FieldMembers(obj), rule, GetAllKeys(), exactmatch);
+
+        /// <summary>
+        /// Set fields value contained within the class specified from the existent keys.
+        /// </summary>
+        /// <param name="obj">Class object.</param>
+        /// <param name="rule">Parse rule.</param>
+        /// <param name="keys">
+        /// Specify the keys that need to be set.
+        /// </param>
+        /// <param name="exactmatch">
+        /// If true, any field failed to set value from the keys will throw exception.
+        /// </param>
+        /// <exception cref="BadConfException"></exception>
+        public void SetFieldsFromKeys(object obj, ParseFromString rule, string[] keys = null, bool exactmatch = false)
+            => Reflection(new FieldMembers(obj), rule, keys, exactmatch);
+
+        private void Reflection(IMembers members, ParseToString rule, string[] keys, bool exactmatch, bool save)
+        {
+            foreach (var key in keys)
+            {
+                var member = members.GetMember(key);
+                if (member != null)
                 {
-                    var value = members.GetValue(key);
+                    var value = member.GetValue();
                     if (value != null)
-                        ChangeValue(key, rule[members.GetMemberType(key)].Invoke(value), save: false);
+                        _configDic[key] = new ConfigInfo
+                        {
+                            Key = key,
+                            Value = rule[member.MemberType].Invoke(value),
+                            Comment = _configDic[key].Comment
+                        };
                     else if (exactmatch)
                         throw new BadConfException("The field / property in the provided object is null.");
                 }
@@ -276,7 +334,7 @@ namespace ConfigReadingLib
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
         public void SavePropertiesToKeys(object obj, ParseToString rule, bool exactmatch = false, bool save = true)
-            => Reflection(new PropertyMember(obj), rule, GetAllKeys(), exactmatch, save);
+            => Reflection(new PropertyMembers(obj), rule, GetAllKeys(), exactmatch, save);
 
         /// <summary>
         /// Save properties value contained within the class specified to the existent keys.
@@ -289,7 +347,7 @@ namespace ConfigReadingLib
         /// <exception cref="BadConfException"></exception>
         public void SavePropertiesToKeys(object obj, ParseToString rule, string[] keys,
             bool exactmatch = false, bool save = true)
-            => Reflection(new PropertyMember(obj), rule, keys, exactmatch, save);
+            => Reflection(new PropertyMembers(obj), rule, keys, exactmatch, save);
 
         /// <summary>
         /// Save all fields value contained within the class specified to the existent keys.
@@ -300,7 +358,7 @@ namespace ConfigReadingLib
         /// <param name="exactmatch">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
         public void SaveFieldsToKeys(object obj, ParseToString rule, bool strict = false, bool exactmatch = true)
-            => Reflection(new FieldMember(obj), rule, GetAllKeys(), strict, exactmatch);
+            => Reflection(new FieldMembers(obj), rule, GetAllKeys(), strict, exactmatch);
 
         /// <summary>
         /// Save fields value contained within the class specified to the existent keys.
@@ -312,27 +370,47 @@ namespace ConfigReadingLib
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
         public void SaveFieldsToKeys(object obj, ParseToString rule, string[] keys, bool exactmatch = false, bool save = true)
-            => Reflection(new FieldMember(obj), rule, keys, exactmatch, save);
+            => Reflection(new FieldMembers(obj), rule, keys, exactmatch, save);
 
         /// <summary>
         /// Save configs to the config file.
         /// </summary>
         public void SaveChanges()
         {
-            int i = 0;
-            foreach (var line in _rawConfig.ToArray())
+            var rawconfigs = _rawConfigs.ToList();
+            var restkeys = GetAllKeys().ToList();
+            var deleteindex = new List<int>();
+
+            for (var i = 0; i < _rawConfigs.Length; i++)
             {
-                if (LineInterpreter(line, out var rawline) is ConfigInfo configinfo)
+                if (LineInterpreter(_rawConfigs[i], out var patterntext) is ConfigInfo configinfo)
                 {
-                    if (_configDic.ContainsKey(configinfo.Key))
+                    var key = configinfo.Key;
+                    if (restkeys.Contains(key))
                     {
-                        var newright = rawline.right.Replace(configinfo.Value, _configDic[configinfo.Key]).Remove(0, 1); // Remove '='
-                        _rawConfig[i] = rawline.left + newright + configinfo.Comment;
+                        var blanks = Regex.Split(patterntext, @"#\d");
+                        rawconfigs[i] = blanks[0] + key + blanks[1] + _configDic[key].Value + blanks[2] + _configDic[key].Comment;
+
+                        restkeys.Remove(key);
+                    }
+                    else
+                    {
+                        deleteindex.Add(i);
                     }
                 }
-                i++;
             }
-            File.WriteAllLines(_path, _rawConfig);
+
+            restkeys.ForEach(key =>
+            {
+                var configinfo = _configDic[key];
+                rawconfigs.Add($"{configinfo.Key} = {configinfo.Value}  {configinfo.Comment}");
+            });
+
+            deleteindex.Reverse();
+            deleteindex.ForEach(index => rawconfigs.RemoveAt(index));
+
+            _rawConfigs = rawconfigs.ToArray();
+            File.WriteAllLines(_path, _rawConfigs);
         }
 
         /// <summary>
