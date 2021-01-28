@@ -1,5 +1,6 @@
 # ConfigReadingLib
  A class library to read or modify the config file reliably.  
+ Old name: ConfReaderLib  
   
 # Memo
  Create a new config file.  
