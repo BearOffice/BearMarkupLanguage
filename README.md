@@ -5,7 +5,7 @@
 # Memo
  Create a new config file.  
  ```
- ConfigReader.Create(new ConfigInfo[]  
+ ConfigReader.Create(new[]  
  {  
      new ConfigInfo { Key = "Key A", Value = "Value A" },  
      new ConfigInfo { Key = "Key B", Value = "Value B", Comment = "Comment B" }  
@@ -32,7 +32,7 @@
   
  Add new keys.  
  ```
- reader.AddConfig(new ConfigInfo[]  
+ reader.AddConfig(new[]  
  {  
      new ConfigInfo{Key = "Key C" , Value = "Value C"},  
      new ConfigInfo {Key = "Key D" , Value ="Value D" , Comment =  "Comment B"}  

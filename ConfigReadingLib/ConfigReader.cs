@@ -17,7 +17,7 @@ namespace ConfigReadingLib
         private string[] _rawConfigs;
         private readonly Dictionary<string, ConfigInfo> _configDic = new Dictionary<string, ConfigInfo>();
         private readonly string _path;
-        private readonly string _symbol;
+        private readonly string _commentsym;
 
         /// <summary>
         /// Read Config File.
@@ -30,16 +30,16 @@ namespace ConfigReadingLib
         /// Key should be unique.</para>
         /// </summary>
         /// <param name="path">The path Specified is exist.</param>
-        /// <param name="symbol">Comment out symbol to set. Default is '//'.</param>
+        /// <param name="commentsymbol">Comment out symbol to set. Default is '//'.</param>
         /// <param name="strict">
         /// If true, any meaningless line in config file will not be accepted.
         /// </param>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="BadConfException"></exception>
-        public ConfigReader(string path, string symbol = "//", bool strict = false)
+        public ConfigReader(string path, string commentsymbol = "//", bool strict = false)
         {
             _path = path;
-            _symbol = symbol;
+            _commentsym = commentsymbol;
             _rawConfigs = File.ReadAllLines(_path);
 
             foreach (var line in _rawConfigs)
@@ -62,8 +62,8 @@ namespace ConfigReadingLib
 
         private ConfigInfo? LineInterpreter(string line, out string patterntext)
         {
-            var comment = Regex.Match(line, $@"\s*({_symbol}.*)$").Groups[1].Value;
-            var uncmtline = Regex.Replace(line, $@"(\s*){_symbol}.*$", "$1");
+            var commentmatch = Regex.Match(line, $@"\s*{_commentsym}(.*)$");
+            var uncmtline = Regex.Replace(line, $@"(\s*){_commentsym}.*$", "$1");
             var pairmatch = Regex.Match(uncmtline, @"^\s*(\S|\S.*?\S)\s*=\s*(\S|\S.*\S)\s*$");
 
             if (pairmatch.Success)
@@ -73,7 +73,7 @@ namespace ConfigReadingLib
                 {
                     Key = pairmatch.Groups[1].Value,
                     Value = pairmatch.Groups[2].Value,
-                    Comment = comment
+                    Comment = commentmatch.Success ? commentmatch.Groups[1].Value : null
                 };
             }
             else
@@ -103,6 +103,29 @@ namespace ConfigReadingLib
             => _configDic.ContainsKey(key);
 
         /// <summary>
+        /// Try to get the config associated with the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="configinfo"></param>
+        /// <returns>true if config contains an element with the specified key; otherwise, false.</returns>
+        public bool TryGetConfig(string key, out ConfigInfo configinfo)
+            => _configDic.TryGetValue(key, out configinfo);
+
+        /// <summary>
+        /// Get the config associated with the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>An element contained with the specified key.</returns>
+        /// <exception cref="BadConfException"></exception>
+        public ConfigInfo GetConfig(string key)
+        {
+            if (TryGetConfig(key, out var configinfo))
+                return configinfo;
+            else
+                throw new BadConfException($"The specified key \"{key}\" not found.");
+        }
+
+        /// <summary>
         /// Try to get the value associated with the specified key.
         /// </summary>
         /// <param name="key"></param>
@@ -130,16 +153,74 @@ namespace ConfigReadingLib
         }
 
         /// <summary>
-        /// Try to change the value associated with the specified key.
+        /// Try to get the comment associated with the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="comment"></param>
+        /// <returns>true if config contains an element with the specified key; otherwise, false.</returns>
+        public bool TryGetComment(string key, out string comment)
+        {
+            var result = _configDic.TryGetValue(key, out var configinfo);
+            comment = configinfo.Comment;
+            return result;
+        }
+
+        /// <summary>
+        /// Get the comment associated with the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>An element contained with the specified key.</returns>
+        /// <exception cref="BadConfException"></exception>
+        public string GetComment(string key)
+        {
+            if (TryGetComment(key, out string comment))
+                return comment;
+            else
+                throw new BadConfException($"The specified key \"{key}\" not found.");
+        }
+
+        /// <summary>
+        /// Change the config associated with the specified key.
+        /// </summary>
+        /// <param name="configinfo"></param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <returns>true if the config specified changed successfully; otherwise, false.</returns>
+        public bool ChangeConfig(ConfigInfo configinfo, bool save = true)
+        {
+            if (!_configDic.ContainsKey(configinfo.Key)) return false;
+
+            _configDic[configinfo.Key] = new ConfigInfo
+            {
+                Key = configinfo.Key,
+                Value = configinfo.Value,
+                Comment = configinfo.Comment
+            };
+
+            if (save) SaveChanges();
+            return true;
+        }
+
+        /// <summary>
+        /// Change the config associated with the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="comment"></param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <returns>true if the config specified changed successfully; otherwise, false.</returns>
+        public bool ChangeConfig(string key, string value, string comment, bool save = true)
+            => ChangeConfig(new ConfigInfo { Key = key, Value = value, Comment = comment }, save);
+
+        /// <summary>
+        /// Change the value associated with the specified key.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
-        /// <returns>true if the value the specified key changed successfully; otherwise, false.</returns>
-        public bool TryChangeValue(string key, string value, bool save = true)
+        /// <returns>true if the value specified changed successfully; otherwise, false.</returns>
+        public bool ChangeValue(string key, string value, bool save = true)
         {
-            if (!_configDic.ContainsKey(key))
-                return false;
+            if (!_configDic.ContainsKey(key)) return false;
 
             _configDic[key] = new ConfigInfo
             {
@@ -153,22 +234,31 @@ namespace ConfigReadingLib
         }
 
         /// <summary>
-        /// Change the value associated with the specified key.
+        /// Change the comment associated with the specified key.
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="value"></param>
+        /// <param name="comment"></param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
-        /// <exception cref="BadConfException"></exception>
-        public void ChangeValue(string key, string value, bool save = true)
+        /// <returns>true if the comment specified changed successfully; otherwise, false.</returns>
+        public bool ChangeComment(string key, string comment, bool save = true)
         {
-            if (!TryChangeValue(key, value, save))
-                throw new BadConfException($"The specified key \"{key}\" not found.");
+            if (!_configDic.ContainsKey(key)) return false;
+
+            _configDic[key] = new ConfigInfo
+            {
+                Key = key,
+                Value = _configDic[key].Value,
+                Comment = comment
+            };
+
+            if (save) SaveChanges();
+            return true;
         }
 
         /// <summary>
-        /// Add configs.
+        /// Add configs with specified ConfigInfo.
         /// </summary>
-        /// <param name="configinfos">ConfigInfos.</param>
+        /// <param name="configinfos"></param>
         /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
@@ -181,7 +271,7 @@ namespace ConfigReadingLib
                     {
                         Key = configinfo.Key,
                         Value = configinfo.Value,
-                        Comment = $"{_symbol} {configinfo.Comment}"
+                        Comment = configinfo.Comment
                     });
                 else if (overwrite)
                     _configDic[configinfo.Key] = configinfo;
@@ -193,19 +283,42 @@ namespace ConfigReadingLib
         }
 
         /// <summary>
-        /// Add a config.
+        /// Add a config with specified ConfigInfo.
         /// </summary>
-        /// <param name="configinfo">ConfigInfo.</param>
+        /// <param name="configinfo"></param>
         /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
         public void AddConfig(ConfigInfo configinfo, bool overwrite = false, bool save = true)
-            => AddConfig(new ConfigInfo[] { configinfo }, overwrite, save);
+            => AddConfig(new[] { configinfo }, overwrite, save);
+
+        /// <summary>
+        /// Add a config with specified key and value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <exception cref="BadConfException"></exception>
+        public void AddConfig(string key, string value, bool overwrite = false, bool save = true)
+            => AddConfig(new[] { new ConfigInfo { Key = key, Value = value } }, overwrite, save);
+
+        /// <summary>
+        /// Add a config with specified key, value and comment.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="comment"></param>
+        /// <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
+        /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+        /// <exception cref="BadConfException"></exception>
+        public void AddConfig(string key, string value, string comment, bool overwrite = false, bool save = true)
+            => AddConfig(new[] { new ConfigInfo { Key = key, Value = value, Comment = comment } }, overwrite, save);
 
         /// <summary>
         /// Remove configs.
         /// </summary>
-        /// <param name="keys">Keys to remove.</param>
+        /// <param name="keys"></param>
         /// <param name="strict">If true, any key failed to remove will throw exception.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
@@ -225,7 +338,7 @@ namespace ConfigReadingLib
         /// <summary>
         /// Remove a config.
         /// </summary>
-        /// <param name="key">Key to remove.</param>
+        /// <param name="key"></param>
         /// <param name="strict">If true, any key failed to remove will throw exception.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
         /// <exception cref="BadConfException"></exception>
@@ -245,9 +358,9 @@ namespace ConfigReadingLib
         }
 
         /// <summary>
-        /// Set all properties value contained within the class specified from the existent keys.
+        /// Set all properties value contained within the object specified from the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains properties.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="exactmatch">
         /// If true, any property failed to set value from the keys will throw exception.
@@ -257,9 +370,9 @@ namespace ConfigReadingLib
             => Reflection(new PropertyMembers(obj), rule, GetAllKeys(), exactmatch);
 
         /// <summary>
-        /// Set properties value contained within the class specified from the existent keys.
+        /// Set properties value contained within the object specified from the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains properties.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="keys">
         /// Specify the keys that need to be set. 
@@ -272,9 +385,9 @@ namespace ConfigReadingLib
             => Reflection(new PropertyMembers(obj), rule, keys, exactmatch);
 
         /// <summary>
-        /// Set all fields value contained within the class specified from the existent keys.
+        /// Set all fields value contained within the object specified from the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains fields.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="exactmatch">
         /// If true, any field failed to set value from the keys will throw exception.
@@ -284,9 +397,9 @@ namespace ConfigReadingLib
             => Reflection(new FieldMembers(obj), rule, GetAllKeys(), exactmatch);
 
         /// <summary>
-        /// Set fields value contained within the class specified from the existent keys.
+        /// Set fields value contained within the object specified from the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains fields.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="keys">
         /// Specify the keys that need to be set.
@@ -326,9 +439,9 @@ namespace ConfigReadingLib
         }
 
         /// <summary>
-        /// Save all properties value contained within the class specified to the existent keys.
+        /// Save all properties value contained within the object specified to the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains properties.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="exactmatch">If true, any key failed to save from the properties will throw exception.</param>
         /// <param name="save">If true, everything changed will be saved to the config file immediately.</param>
@@ -337,9 +450,9 @@ namespace ConfigReadingLib
             => Reflection(new PropertyMembers(obj), rule, GetAllKeys(), exactmatch, save);
 
         /// <summary>
-        /// Save properties value contained within the class specified to the existent keys.
+        /// Save properties value contained within the object specified to the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains properties.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="keys">Specify the keys that need to be save. </param>
         /// <param name="exactmatch">If true, any key failed to save from the properties will throw exception.</param>
@@ -350,9 +463,9 @@ namespace ConfigReadingLib
             => Reflection(new PropertyMembers(obj), rule, keys, exactmatch, save);
 
         /// <summary>
-        /// Save all fields value contained within the class specified to the existent keys.
+        /// Save all fields value contained within the object specified to the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains fields.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="strict">If true, any key failed to save from fields will throw exception.</param>
         /// <param name="exactmatch">If true, everything changed will be saved to the config file immediately.</param>
@@ -361,9 +474,9 @@ namespace ConfigReadingLib
             => Reflection(new FieldMembers(obj), rule, GetAllKeys(), strict, exactmatch);
 
         /// <summary>
-        /// Save fields value contained within the class specified to the existent keys.
+        /// Save fields value contained within the object specified to the existent keys.
         /// </summary>
-        /// <param name="obj">Class object.</param>
+        /// <param name="obj">An instance object contains fields.</param>
         /// <param name="rule">Parse rule.</param>
         /// <param name="keys">Specify the keys that need to be save. </param>
         /// <param name="exactmatch">If true, any key failed to save from the fields will throw exception.</param>
@@ -389,7 +502,9 @@ namespace ConfigReadingLib
                     if (restkeys.Contains(key))
                     {
                         var blanks = Regex.Split(patterntext, @"#\d");
-                        rawconfigs[i] = blanks[0] + key + blanks[1] + _configDic[key].Value + blanks[2] + _configDic[key].Comment;
+                        rawconfigs[i] = blanks[0] + key + blanks[1] + _configDic[key].Value + blanks[2];
+                        if (_configDic[key].Comment != null)
+                            rawconfigs[i] += _commentsym + _configDic[key].Comment;
 
                         restkeys.Remove(key);
                     }
@@ -416,7 +531,7 @@ namespace ConfigReadingLib
         /// <summary>
         /// Create a new config file, write the specified configs. If the file specified is exist, it will be overwritten.
         /// </summary>
-        /// <param name="configinfos">ConfigInfos.</param>
+        /// <param name="configinfos"></param>
         /// <param name="path">The path Specified is exist.</param>
         /// <param name="symbol">Comment out symbol to set. Default is '//'.</param>
         /// <exception cref="BadConfException"></exception>

@@ -9,7 +9,6 @@ namespace ConfigReadingLib
     {
         private string _key;
         private string _value;
-        private string _comment;
 
         /// <summary>
         /// Key can not be set as null or white space.
@@ -36,10 +35,6 @@ namespace ConfigReadingLib
         /// <summary>
         /// Comment can be omitted.
         /// </summary>
-        public string Comment
-        {
-            get => _comment ?? "";
-            set => _comment = value;
-        }
+        public string Comment { get; set; }
     }
 }

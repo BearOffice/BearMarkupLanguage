@@ -65,7 +65,7 @@
             Key should be unique.</para>
             </summary>
             <param name="path">The path Specified is exist.</param>
-            <param name="symbol">Comment out symbol to set. Default is '//'.</param>
+            <param name="commentsymbol">Comment out symbol to set. Default is '//'.</param>
             <param name="strict">
             If true, any meaningless line in config file will not be accepted.
             </param>
@@ -85,6 +85,22 @@
             <param name="key"></param>
             <returns>true if config contains an element with the specified key; otherwise, false.</returns>
         </member>
+        <member name="M:ConfigReadingLib.ConfigReader.TryGetConfig(System.String,ConfigReadingLib.ConfigInfo@)">
+            <summary>
+            Try to get the config associated with the specified key.
+            </summary>
+            <param name="key"></param>
+            <param name="configinfo"></param>
+            <returns>true if config contains an element with the specified key; otherwise, false.</returns>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.GetConfig(System.String)">
+            <summary>
+            Get the config associated with the specified key.
+            </summary>
+            <param name="key"></param>
+            <returns>An element contained with the specified key.</returns>
+            <exception cref="T:ConfigReadingLib.BadConfException"></exception>
+        </member>
         <member name="M:ConfigReadingLib.ConfigReader.TryGetValue(System.String,System.String@)">
             <summary>
             Try to get the value associated with the specified key.
@@ -101,14 +117,39 @@
             <returns>An element contained with the specified key.</returns>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
         </member>
-        <member name="M:ConfigReadingLib.ConfigReader.TryChangeValue(System.String,System.String,System.Boolean)">
+        <member name="M:ConfigReadingLib.ConfigReader.TryGetComment(System.String,System.String@)">
             <summary>
-            Try to change the value associated with the specified key.
+            Try to get the comment associated with the specified key.
+            </summary>
+            <param name="key"></param>
+            <param name="comment"></param>
+            <returns>true if config contains an element with the specified key; otherwise, false.</returns>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.GetComment(System.String)">
+            <summary>
+            Get the comment associated with the specified key.
+            </summary>
+            <param name="key"></param>
+            <returns>An element contained with the specified key.</returns>
+            <exception cref="T:ConfigReadingLib.BadConfException"></exception>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.ChangeConfig(ConfigReadingLib.ConfigInfo,System.Boolean)">
+            <summary>
+            Change the config associated with the specified key.
+            </summary>
+            <param name="configinfo"></param>
+            <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+            <returns>true if the config specified changed successfully; otherwise, false.</returns>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.ChangeConfig(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Change the config associated with the specified key.
             </summary>
             <param name="key"></param>
             <param name="value"></param>
+            <param name="comment"></param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
-            <returns>true if the value the specified key changed successfully; otherwise, false.</returns>
+            <returns>true if the config specified changed successfully; otherwise, false.</returns>
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.ChangeValue(System.String,System.String,System.Boolean)">
             <summary>
@@ -117,22 +158,52 @@
             <param name="key"></param>
             <param name="value"></param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
-            <exception cref="T:ConfigReadingLib.BadConfException"></exception>
+            <returns>true if the value specified changed successfully; otherwise, false.</returns>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.ChangeComment(System.String,System.String,System.Boolean)">
+            <summary>
+            Change the comment associated with the specified key.
+            </summary>
+            <param name="key"></param>
+            <param name="comment"></param>
+            <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+            <returns>true if the comment specified changed successfully; otherwise, false.</returns>
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.AddConfig(ConfigReadingLib.ConfigInfo[],System.Boolean,System.Boolean)">
             <summary>
-            Add configs.
+            Add configs with specified ConfigInfo.
             </summary>
-            <param name="configinfos">ConfigInfos.</param>
+            <param name="configinfos"></param>
             <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.AddConfig(ConfigReadingLib.ConfigInfo,System.Boolean,System.Boolean)">
             <summary>
-            Add a config.
+            Add a config with specified ConfigInfo.
             </summary>
-            <param name="configinfo">ConfigInfo.</param>
+            <param name="configinfo"></param>
+            <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
+            <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+            <exception cref="T:ConfigReadingLib.BadConfException"></exception>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.AddConfig(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Add a config with specified key and value.
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
+            <param name="save">If true, everything changed will be saved to the config file immediately.</param>
+            <exception cref="T:ConfigReadingLib.BadConfException"></exception>
+        </member>
+        <member name="M:ConfigReadingLib.ConfigReader.AddConfig(System.String,System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Add a config with specified key, value and comment.
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="comment"></param>
             <param name="overwrite">If true, the specified key which already existed will be overwritten.</param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
@@ -141,7 +212,7 @@
             <summary>
             Remove configs.
             </summary>
-            <param name="keys">Keys to remove.</param>
+            <param name="keys"></param>
             <param name="strict">If true, any key failed to remove will throw exception.</param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
@@ -150,16 +221,16 @@
             <summary>
             Remove a config.
             </summary>
-            <param name="key">Key to remove.</param>
+            <param name="key"></param>
             <param name="strict">If true, any key failed to remove will throw exception.</param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SetPropertiesFromKeys(System.Object,ConfigReadingLib.ParseFromString,System.Boolean)">
             <summary>
-            Set all properties value contained within the class specified from the existent keys.
+            Set all properties value contained within the object specified from the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains properties.</param>
             <param name="rule">Parse rule.</param>
             <param name="exactmatch">
             If true, any property failed to set value from the keys will throw exception.
@@ -168,9 +239,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SetPropertiesFromKeys(System.Object,ConfigReadingLib.ParseFromString,System.String[],System.Boolean)">
             <summary>
-            Set properties value contained within the class specified from the existent keys.
+            Set properties value contained within the object specified from the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains properties.</param>
             <param name="rule">Parse rule.</param>
             <param name="keys">
             Specify the keys that need to be set. 
@@ -182,9 +253,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SetFieldsFromKeys(System.Object,ConfigReadingLib.ParseFromString,System.Boolean)">
             <summary>
-            Set all fields value contained within the class specified from the existent keys.
+            Set all fields value contained within the object specified from the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains fields.</param>
             <param name="rule">Parse rule.</param>
             <param name="exactmatch">
             If true, any field failed to set value from the keys will throw exception.
@@ -193,9 +264,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SetFieldsFromKeys(System.Object,ConfigReadingLib.ParseFromString,System.String[],System.Boolean)">
             <summary>
-            Set fields value contained within the class specified from the existent keys.
+            Set fields value contained within the object specified from the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains fields.</param>
             <param name="rule">Parse rule.</param>
             <param name="keys">
             Specify the keys that need to be set.
@@ -207,9 +278,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SavePropertiesToKeys(System.Object,ConfigReadingLib.ParseToString,System.Boolean,System.Boolean)">
             <summary>
-            Save all properties value contained within the class specified to the existent keys.
+            Save all properties value contained within the object specified to the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains properties.</param>
             <param name="rule">Parse rule.</param>
             <param name="exactmatch">If true, any key failed to save from the properties will throw exception.</param>
             <param name="save">If true, everything changed will be saved to the config file immediately.</param>
@@ -217,9 +288,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SavePropertiesToKeys(System.Object,ConfigReadingLib.ParseToString,System.String[],System.Boolean,System.Boolean)">
             <summary>
-            Save properties value contained within the class specified to the existent keys.
+            Save properties value contained within the object specified to the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains properties.</param>
             <param name="rule">Parse rule.</param>
             <param name="keys">Specify the keys that need to be save. </param>
             <param name="exactmatch">If true, any key failed to save from the properties will throw exception.</param>
@@ -228,9 +299,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SaveFieldsToKeys(System.Object,ConfigReadingLib.ParseToString,System.Boolean,System.Boolean)">
             <summary>
-            Save all fields value contained within the class specified to the existent keys.
+            Save all fields value contained within the object specified to the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains fields.</param>
             <param name="rule">Parse rule.</param>
             <param name="strict">If true, any key failed to save from fields will throw exception.</param>
             <param name="exactmatch">If true, everything changed will be saved to the config file immediately.</param>
@@ -238,9 +309,9 @@
         </member>
         <member name="M:ConfigReadingLib.ConfigReader.SaveFieldsToKeys(System.Object,ConfigReadingLib.ParseToString,System.String[],System.Boolean,System.Boolean)">
             <summary>
-            Save fields value contained within the class specified to the existent keys.
+            Save fields value contained within the object specified to the existent keys.
             </summary>
-            <param name="obj">Class object.</param>
+            <param name="obj">An instance object contains fields.</param>
             <param name="rule">Parse rule.</param>
             <param name="keys">Specify the keys that need to be save. </param>
             <param name="exactmatch">If true, any key failed to save from the fields will throw exception.</param>
@@ -256,7 +327,7 @@
             <summary>
             Create a new config file, write the specified configs. If the file specified is exist, it will be overwritten.
             </summary>
-            <param name="configinfos">ConfigInfos.</param>
+            <param name="configinfos"></param>
             <param name="path">The path Specified is exist.</param>
             <param name="symbol">Comment out symbol to set. Default is '//'.</param>
             <exception cref="T:ConfigReadingLib.BadConfException"></exception>
