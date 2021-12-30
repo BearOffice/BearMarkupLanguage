@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BearMLLib", "BearMLLib\BearMLLib.csproj", "{FB956E38-77BD-4174-BBF7-19540590019E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo", "Demo\Demo.csproj", "{CEB786D8-F4C5-409A-9912-8D57FEA77EB9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB956E38-77BD-4174-BBF7-19540590019E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB956E38-77BD-4174-BBF7-19540590019E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB956E38-77BD-4174-BBF7-19540590019E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB956E38-77BD-4174-BBF7-19540590019E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB786D8-F4C5-409A-9912-8D57FEA77EB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB786D8-F4C5-409A-9912-8D57FEA77EB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB786D8-F4C5-409A-9912-8D57FEA77EB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB786D8-F4C5-409A-9912-8D57FEA77EB9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37FDDF3D-987E-48B3-BCA0-2AA9E6702033}
+	EndGlobalSection
+EndGlobal
