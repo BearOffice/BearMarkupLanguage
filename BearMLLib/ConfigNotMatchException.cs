@@ -5,22 +5,22 @@ using System.Text;
 namespace BearMLLib
 {
     /// <summary>
-    /// ConfigNotMatchException
+    /// The exception that is thrown when congig cannot be matched.
     /// </summary>
     public class ConfigNotMatchException : Exception
     {
         /// <summary>
-        /// ConfigNotMatchException
+        /// The exception that is thrown when congig cannot be matched.
         /// </summary>
         public ConfigNotMatchException() : base() { }
 
         /// <summary>
-        /// ConfigNotMatchException
+        /// The exception that is thrown when congig cannot be matched.
         /// </summary>
         public ConfigNotMatchException(string message) : base(message) { }
 
         /// <summary>
-        /// ConfigNotMatchException
+        /// The exception that is thrown when congig cannot be matched.
         /// </summary>
         public ConfigNotMatchException(string message, Exception innerException) 
             : base(message, innerException) { }

@@ -5,22 +5,22 @@ using System.Text;
 namespace BearMLLib.Core
 {
     /// <summary>
-    /// InvalidLineException
+    /// The exception that is thrown when line is invalid.
     /// </summary>
     public class InvalidLineException : Exception
     {
         /// <summary>
-        /// InvalidLineException
+        /// The exception that is thrown when line is invalid.
         /// </summary>
         public InvalidLineException() : base() { }
 
         /// <summary>
-        /// InvalidLineException
+        /// The exception that is thrown when line is invalid.
         /// </summary>
         public InvalidLineException(string message) : base(message) { }
 
         /// <summary>
-        /// InvalidLineException
+        /// The exception that is thrown when line is invalid.
         /// </summary>
         public InvalidLineException(string message, Exception innerException) 
             : base(message, innerException) { }

@@ -5,22 +5,22 @@ using System.Text;
 namespace BearMLLib.Serialization
 {
     /// <summary>
-    /// TypeNotSupportException
+    /// The exception that is thrown when type is not supported.
     /// </summary>
     public class TypeNotSupportException : Exception
     {
         /// <summary>
-        /// TypeNotSupportException
+        /// The exception that is thrown when type is not supported.
         /// </summary>
         public TypeNotSupportException() : base() { }
 
         /// <summary>
-        /// TypeNotSupportException
+        /// The exception that is thrown when type is not supported.
         /// </summary>
         public TypeNotSupportException(string message) : base(message) { }
 
         /// <summary>
-        /// TypeNotSupportException
+        /// The exception that is thrown when type is not supported.
         /// </summary>
         public TypeNotSupportException(string message, Exception innerException) 
             : base(message, innerException) { }

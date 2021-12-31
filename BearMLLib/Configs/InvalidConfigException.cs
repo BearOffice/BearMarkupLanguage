@@ -5,22 +5,22 @@ using System.Text;
 namespace BearMLLib.Configs
 {
     /// <summary>
-    /// InvalidConfigException
+    /// The exception that is thrown when congig is invalid.
     /// </summary>
     public class InvalidConfigException : Exception
     {
         /// <summary>
-        /// InvalidConfigException
+        /// The exception that is thrown when congig is invalid.
         /// </summary>
         public InvalidConfigException() : base() { }
 
         /// <summary>
-        /// InvalidConfigException
+        /// The exception that is thrown when congig is invalid.
         /// </summary>
         public InvalidConfigException(string message) : base(message) { }
 
         /// <summary>
-        /// InvalidConfigException
+        /// The exception that is thrown when congig is invalid.
         /// </summary>
         public InvalidConfigException(string message, Exception innerException) 
             : base(message, innerException) { }

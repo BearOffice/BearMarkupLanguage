@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using BearMLLib.Text;
 
 namespace BearMLLib.Configs
 {
@@ -13,12 +14,20 @@ namespace BearMLLib.Configs
 
         internal Key(string name, string aliasName, string comment)
         {
+            if (!IsValidName(name))
+                throw new InvalidConfigException("The format of Key is invalid.");
+
             if (aliasName != null && !IsValidAliasName(aliasName))
                 throw new InvalidConfigException("The format of Key alias is invalid.");
 
             Name = name;
             AliasName = aliasName;
             Comment = comment;
+        }
+
+        internal static bool IsValidName(string name)
+        {
+            return !name.IsNullOrWhiteSpace() && !name[0].IsWhiteSpace();
         }
 
         internal static bool IsValidAliasName(string aliasName)
