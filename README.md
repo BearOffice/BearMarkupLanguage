@@ -1,7 +1,7 @@
 # BearMarkupLanguageLib
 A class library to get or save configs simply and reliably.  
 This library uses an original markup language.  
-The language details: [Wiki](../../wiki/Bear-Markup-Language)
+The language's detail: [Wiki](../../wiki/Bear-Markup-Language)
 <br>
 
 # How to use
@@ -237,7 +237,7 @@ list: >
 ```
 <br>
 
-## Define new serializable type
+## Define new serializable types
 
 ```C#
 using BearMLLib.Serialization.Conversion;
