@@ -1,6 +1,7 @@
 # BearMarkupLanguageLib
 A class library to get or save configs simply and reliably.  
 This library uses an original markup language.  
+The language details: [Wiki](../../wiki/Bear-Markup-Language)
 <br>
 
 # How to use
