@@ -50,7 +50,7 @@ using BearMLLib;
 BearML reader = new BearML("config.txt");
 double num1 = reader.Get<double>("default", "number");
 double num2 = reader.Get<double>("number");
-double aliasName = reader.GetComment<double>("number")
+double aliasName = reader.GetComment<double>("number");
 double num3 = reader.Get<double>("num");
 double comment = reader.GetComment<double>("num");
 ```
@@ -223,7 +223,6 @@ list: >
 ```C#
 Format.This.ListMode = ListMode.Auto;
 Format.This.MaximumElementNumber = 3;
-reader.Save();
 reader.Save();
 ```
 ```
