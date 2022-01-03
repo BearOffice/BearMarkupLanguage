@@ -26,15 +26,9 @@ namespace BearMLLib.Core
             foreach (var location in OrderedLine)
             {
                 if (location.IsItemName)
-                {
-                    if (GroupsDic.ContainsKey(location.Text))
-                        raw.AddRange(GroupParser.ParseToRaw(GroupsDic[location.Text]));
-                }
+                    raw.AddRange(GroupParser.ParseToRaw(GroupsDic[location.Text]));
                 else
-                {
                     raw.Add(location.Text);
-                }
-
             }
 
             return raw.ToArray();

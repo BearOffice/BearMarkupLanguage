@@ -349,6 +349,14 @@ namespace BearMLLib
         }
 
         /// <summary>
+        /// Get all keys in default group.
+        /// </summary>
+        public string[] GetAllKeys()
+        {
+            return GetAllKeys(Identifier.DefaultGroupName);
+        }
+
+        /// <summary>
         /// Get all keys in the specified group.
         /// </summary>
         /// <param name="group">Group name.</param>
@@ -478,6 +486,30 @@ namespace BearMLLib
         }
 
         /// <summary>
+        /// Get raw text from key in default group.
+        /// </summary>
+        /// <param name="key">Key name or key alias name.</param>
+        public string[] GetKeyContentPairRawText(string key)
+        {
+            return GetKeyContentPairRawText(Identifier.DefaultGroupName, key);
+        }
+
+        /// <summary>
+        /// Get raw text from key in the specified group.
+        /// </summary>
+        /// <param name="group">Group name.</param>
+        /// <param name="key">Key name or key alias name.</param>
+        public string[] GetKeyContentPairRawText(string group, string key)
+        {
+            if (!TryGetKeyName(group, key, out var keyName))
+                ErrorHandler.This.Add(ErrorType.NotMatch, $"{group}.{key}");
+
+            var raw = _container.GroupsDic[group].KeyContentPairsDic[keyName].Raw;
+
+            return raw.ToArray();
+        }
+
+        /// <summary>
         /// Get default group's raw text.
         /// </summary>
         public string[] GetGroupRawText()
@@ -588,6 +620,7 @@ namespace BearMLLib
                 ErrorHandler.This.Add(ErrorType.NotMatch);
 
             _container.GroupsDic[group].KeyContentPairsDic.Remove(keyName);
+            _container.GroupsDic[group].OrderedLine.Remove(new TaggedLine(true, keyName));
             AutoSave();
         }
 
@@ -601,6 +634,7 @@ namespace BearMLLib
                 ErrorHandler.This.Add(ErrorType.NotMatch);
 
             _container.GroupsDic.Remove(group);
+            _container.OrderedLine.Remove(new TaggedLine(true, group));
             AutoSave();
         }
 
@@ -614,6 +648,7 @@ namespace BearMLLib
                 ErrorHandler.This.Add(ErrorType.NotMatch);
 
             _container.GroupsDic[group].KeyContentPairsDic.Clear();
+            _container.GroupsDic[group].OrderedLine.Clear();
             AutoSave();
         }
 
