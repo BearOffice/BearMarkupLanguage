@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using BearMLLib.Serialization;
 
 namespace Demo;
-
 internal class Weather
 {
     public TimeSpan Time { get; set; }

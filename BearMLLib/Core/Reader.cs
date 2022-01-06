@@ -11,24 +11,24 @@ namespace BearMLLib.Core
 {
     internal class Reader
     {
-        private readonly string[] _raw;
+        private readonly ReferList<string> _raw;
         private int _currentLinePos;
 
         internal Reader()
         {
-            _raw = new string[0];
+            _raw = new ReferList<string>(new string[0]);
             _currentLinePos = 0;
         }
 
         internal Reader(string[] raw)
         {
-            _raw = raw;
+            _raw = new ReferList<string>(raw);
             _currentLinePos = 0;
         }
 
         internal Reader(string path)
         {
-            _raw = File.ReadAllLines(path);
+            _raw = new ReferList<string>(File.ReadAllLines(path));
             _currentLinePos = 0;
         }
 
@@ -37,31 +37,31 @@ namespace BearMLLib.Core
             ErrorHandler.This.Message += ThrowError;
 
             var container = new ConfigsContainer();
+            var startPos = 0;
 
-            // create default group at start.
-            var defaultGroup = GroupParser.ParseFromRaw(new ReferList<string>(new string[0]), true, out _);
-            container.GroupsDic.Add(defaultGroup.Name, defaultGroup);
-            container.OrderedLine.Add(new TaggedLine(true, defaultGroup.Name));
+            if (LineAnalyzer.IsGroupLine(_raw[startPos]))
+            {
+                // create empty default group at start.
+                var defaultGroup = GroupParser.ParseFromRaw(new ReferList<string>(new string[0]), true, out _);
+                container.GroupsDic.Add(defaultGroup.Name, defaultGroup);
+                container.OrderedLine.Add(new TaggedLine(true, defaultGroup.Name));
+            }
+            else
+            {
+                var defaultGroup = GroupParser.ParseFromRaw(_raw[startPos..], true, out var groupDepth);
+                container.GroupsDic.Add(defaultGroup.Name, defaultGroup);
+                container.OrderedLine.Add(new TaggedLine(true, defaultGroup.Name));
 
-            for (var i = 0; i < _raw.Length; i++)
+                startPos += groupDepth + 1;
+            }
+
+            for (var i = startPos; i < _raw.Count; i++)
             {
                 _currentLinePos = i;
 
                 if (LineAnalyzer.IsGroupLine(_raw[i]))
                 {
-                    var group = GroupParser.ParseFromRaw(new ReferList<string>(_raw[i..]), false, out var groupDepth);
-                    container.GroupsDic.Add(group.Name, group);
-                    container.OrderedLine.Add(new TaggedLine(true, group.Name));
-
-                    i += groupDepth;
-                }
-                else if (LineAnalyzer.IsKeyContentLine(_raw[i]))
-                {
-                    // if default group contains key content line, clear the default group which is created previously.
-                    container.GroupsDic.Clear();
-                    container.OrderedLine.RemoveAt(0);
-
-                    var group = GroupParser.ParseFromRaw(new ReferList<string>(_raw[i..]), true, out var groupDepth);
+                    var group = GroupParser.ParseFromRaw(_raw[i..], false, out var groupDepth);
                     container.GroupsDic.Add(group.Name, group);
                     container.OrderedLine.Add(new TaggedLine(true, group.Name));
 

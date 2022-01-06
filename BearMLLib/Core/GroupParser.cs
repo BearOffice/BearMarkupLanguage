@@ -23,10 +23,12 @@ namespace BearMLLib.Core
             {
                 if (LineAnalyzer.IsGroupLine(raw[i]))
                 {
+                    var lineCount = 0;
                     foreach (var line in raw[checkFrom..i])
                     {
-                        CheckLine(line, checkFrom);
+                        CheckLine(line, checkFrom + lineCount);
                         group.OrderedLine.Add(new TaggedLine(false, line));
+                        lineCount++;
                     }
 
                     return group;
@@ -40,11 +42,13 @@ namespace BearMLLib.Core
                     var contentType = LineAnalyzer.GetContentType(raw[i..]);
                     var content = IContentParser.GetParser(contentType).ParseFromRaw(raw[i..], out var contentDepth);
 
-                   
+
+                    var lineCount = 0;
                     foreach (var line in raw[checkFrom..(i - keyDepth)])
                     {
-                        CheckLine(line, checkFrom);
+                        CheckLine(line, checkFrom + lineCount);
                         group.OrderedLine.Add(new TaggedLine(false, line));
+                        lineCount++;
                     }
 
                     var pair = new KeyContentPair(key, content, raw[(i - keyDepth)..(i + contentDepth + 1)]);
@@ -59,10 +63,12 @@ namespace BearMLLib.Core
 
             if (checkFrom < raw.Count)
             {
-                foreach(var line in raw[checkFrom..])
+                var lineCount = 0;
+                foreach (var line in raw[checkFrom..])
                 {
-                    CheckLine(line, checkFrom);
+                    CheckLine(line, checkFrom + lineCount);
                     group.OrderedLine.Add(new TaggedLine(false, line));
+                    lineCount++;
                 }
             }
 
@@ -100,7 +106,7 @@ namespace BearMLLib.Core
         private static void CheckLine(string rawLine, int offset)
         {
             if (!(LineAnalyzer.IsNullOrWhiteSpaceLine(rawLine) || LineAnalyzer.IsCommentLine(rawLine)))
-                ErrorHandler.This.Add(ErrorType.InvalidLine, offset + 1, rawLine);
+                ErrorHandler.This.Add(ErrorType.InvalidLine, offset, rawLine);
         }
     }
 }
