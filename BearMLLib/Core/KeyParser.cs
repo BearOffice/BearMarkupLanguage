@@ -36,7 +36,7 @@ namespace BearMLLib.Core
             }
             else
             {
-                if (raw.Count >= 2 && LineAnalyzer.IsCommentLine(raw[^3]))
+                if (raw.Count > 2 && LineAnalyzer.IsCommentLine(raw[^3]))
                 {
                     comment = GetCommentFromRaw(raw[..^2], out var cDepth);
                     depth += cDepth;
