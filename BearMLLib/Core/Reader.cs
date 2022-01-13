@@ -39,7 +39,7 @@ namespace BearMLLib.Core
             var container = new ConfigsContainer();
             var startPos = 0;
 
-            if (LineAnalyzer.IsGroupLine(_raw[startPos]))
+            if (_raw.Count == 0 || LineAnalyzer.IsGroupLine(_raw[startPos]))
             {
                 // create empty default group at start.
                 var defaultGroup = GroupParser.ParseFromRaw(new ReferList<string>(new string[0]), true, out _);

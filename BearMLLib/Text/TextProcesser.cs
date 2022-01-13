@@ -84,33 +84,33 @@ namespace BearMLLib.Text
             return input.TrimStart().TrimEnd();
         }
 
-        internal static bool StartsWith(this string input, char value, bool ignorewhitespace)
+        internal static bool StartsWith(this string input, char value, bool ignoreWhiteSpace)
         {
-            if (ignorewhitespace)
+            if (ignoreWhiteSpace)
                 return input.TrimStart().StartsWith(value);
             else
                 return input.StartsWith(value);
         }
 
-        internal static bool StartsWith(this string input, string value, bool ignorewhitespace)
+        internal static bool StartsWith(this string input, string value, bool ignoreWhiteSpace)
         {
-            if (ignorewhitespace)
+            if (ignoreWhiteSpace)
                 return input.TrimStart().StartsWith(value);
             else
                 return input.StartsWith(value);
         }
 
-        internal static bool EndsWith(this string input, char value, bool ignorewhitespace)
+        internal static bool EndsWith(this string input, char value, bool ignoreWhiteSpace)
         {
-            if (ignorewhitespace)
+            if (ignoreWhiteSpace)
                 return input.TrimEnd().EndsWith(value);
             else
                 return input.EndsWith(value);
         }
 
-        internal static bool EndsWith(this string input, string value, bool ignorewhitespace)
+        internal static bool EndsWith(this string input, string value, bool ignoreWhiteSpace)
         {
-            if (ignorewhitespace)
+            if (ignoreWhiteSpace)
                 return input.TrimEnd().EndsWith(value);
             else
                 return input.EndsWith(value);
@@ -192,7 +192,7 @@ namespace BearMLLib.Text
 
                         i++;
 
-                        var lastpos = i;
+                        var lastPos = i;
                         while (i < input.Length)
                         {
                             ch = input[i];
@@ -200,7 +200,7 @@ namespace BearMLLib.Text
 
                             i++;
                         }
-                        sb.Append(input, lastpos, i - lastpos);
+                        sb.Append(input, lastPos, i - lastPos);
 
                     } while (i < input.Length);
 
@@ -240,12 +240,12 @@ namespace BearMLLib.Text
                             i++;
                         }
 
-                        var lastpos = i;
+                        var lastPos = i;
                         while (i < input.Length && input[i] != '\\')
                         {
                             i++;
                         }
-                        sb.Append(input, lastpos, i - lastpos);
+                        sb.Append(input, lastPos, i - lastPos);
 
                     } while (i < input.Length);
 

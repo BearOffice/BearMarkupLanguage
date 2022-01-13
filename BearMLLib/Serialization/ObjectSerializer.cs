@@ -31,7 +31,7 @@ namespace BearMLLib.Serialization
 
             foreach (var prop in targetType.GetProperties())
             {
-                if (HasIgnoreAttribute(prop)) continue;
+                if (HasIgnoreAttribute(prop) || prop.GetIndexParameters().Length != 0) continue;
 
                 var name = prop.Name;
                 var type = prop.PropertyType;
@@ -79,12 +79,12 @@ namespace BearMLLib.Serialization
                 pairs.Add(new KeyContentPair(new Key(key, null, null), content));
             }
 
-            foreach (var property in sourceType.GetProperties())
+            foreach (var prop in sourceType.GetProperties())
             {
-                if (HasIgnoreAttribute(property)) continue;
+                if (HasIgnoreAttribute(prop) || prop.GetIndexParameters().Length != 0) continue;
 
-                var key = property.Name;
-                var content = ContentTypeSelector.GetContent(property.GetValue(source), providers);
+                var key = prop.Name;
+                var content = ContentTypeSelector.GetContent(prop.GetValue(source), providers);
                 pairs.Add(new KeyContentPair(new Key(key, null, null), content));
             }
 
