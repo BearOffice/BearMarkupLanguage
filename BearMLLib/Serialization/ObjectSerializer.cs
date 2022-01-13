@@ -76,7 +76,10 @@ namespace BearMLLib.Serialization
 
                 var key = field.Name;
                 var content = ContentTypeSelector.GetContent(field.GetValue(source), providers);
-                pairs.Add(new KeyContentPair(new Key(key, null, null), content));
+                var keyAlias = GetKeyAliasFromAttributes(field);
+                var comment = GetCommentFromAttributes(field);
+
+                pairs.Add(new KeyContentPair(new Key(key, keyAlias, comment), content));
             }
 
             foreach (var prop in sourceType.GetProperties())
@@ -85,7 +88,10 @@ namespace BearMLLib.Serialization
 
                 var key = prop.Name;
                 var content = ContentTypeSelector.GetContent(prop.GetValue(source), providers);
-                pairs.Add(new KeyContentPair(new Key(key, null, null), content));
+                var keyAlias = GetKeyAliasFromAttributes(prop);
+                var comment = GetCommentFromAttributes(prop);
+
+                pairs.Add(new KeyContentPair(new Key(key, keyAlias, comment), content));
             }
 
             return pairs.ToArray();
@@ -101,9 +107,7 @@ namespace BearMLLib.Serialization
             foreach (var attr in Attribute.GetCustomAttributes(prop))
             {
                 if (attr is IgnoreSerializationAttribute)
-                {
                     return true;
-                }
             }
 
             return false;
@@ -114,12 +118,54 @@ namespace BearMLLib.Serialization
             foreach (var attr in Attribute.GetCustomAttributes(field))
             {
                 if (attr is IgnoreSerializationAttribute)
-                {
                     return true;
-                }
             }
 
             return false;
+        }
+
+        private static string GetKeyAliasFromAttributes(PropertyInfo prop)
+        {
+            foreach (var attr in Attribute.GetCustomAttributes(prop))
+            {
+                if (attr is KeyAliasAttribute keyAliasAttr)
+                    return keyAliasAttr.KeyAlias;
+            }
+
+            return null;
+        }
+
+        private static string GetKeyAliasFromAttributes(FieldInfo field)
+        {
+            foreach (var attr in Attribute.GetCustomAttributes(field))
+            {
+                if (attr is KeyAliasAttribute keyAliasAttr)
+                    return keyAliasAttr.KeyAlias;
+            }
+
+            return null;
+        }
+
+        private static string GetCommentFromAttributes(PropertyInfo prop)
+        {
+            foreach (var attr in Attribute.GetCustomAttributes(prop))
+            {
+                if (attr is CommentAttribute commentAttr)
+                    return commentAttr.Comment;
+            }
+
+            return null;
+        }
+
+        private static string GetCommentFromAttributes(FieldInfo field)
+        {
+            foreach (var attr in Attribute.GetCustomAttributes(field))
+            {
+                if (attr is CommentAttribute commentAttr)
+                    return commentAttr.Comment;
+            }
+
+            return null;
         }
     }
 }

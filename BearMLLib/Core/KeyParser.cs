@@ -53,7 +53,7 @@ namespace BearMLLib.Core
             if (key.Comment != null)
                 raw.AddRange(key.Comment.Replace("\r\n", "\n")
                                         .Split(new[] { '\n', '\r' })
-                                        .Select(item => Identifier.Comment + " " + item));
+                                        .Select(item => Identifier.Comment + item));
 
             if (key.AliasName != null)
                 raw.Add(Identifier.KeyAliasL + " " + key.AliasName + " " + Identifier.KeyAliasR);

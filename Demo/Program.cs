@@ -42,5 +42,10 @@ class Program
         weatherObj = new Weather() { Time = new TimeSpan(10, 11, 12), Temperature = 22 };
         bearML.ChangeObjectGroup("weather obj", weatherObj);
         Console.WriteLine("Temp is {0} degree. Time is {1}.", weatherObj.Temperature, weatherObj.Time);
+
+        bearML.AddObjectGroup("another weather obj", weatherObj);
+        Console.WriteLine("Temperature's key alias is {0}. Temperature's comment is {1}.", 
+            bearML.GetKeyAlias("another weather obj", "Temperature"),
+            bearML.GetComment("another weather obj", "Temperature"));
     }
 }

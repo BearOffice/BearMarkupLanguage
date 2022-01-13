@@ -10,6 +10,8 @@ internal class Weather
 {
     public TimeSpan Time { get; set; }
 
+    [KeyAlias("temp")]
+    [Comment("degree celsius.")]
     public double Temperature { get; set; }
 
     [IgnoreSerialization]
