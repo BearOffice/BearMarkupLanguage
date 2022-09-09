@@ -174,8 +174,19 @@ internal class RootBlock
         }
         else if (element is DictionaryElement)
         {
-            tempList.Add(ID.ExpandedDicSymbol.ToString());
-            tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+            switch (elemParseMode)
+            {
+                case ParseMode.Collapse:
+                    tempList.Add("");
+                    tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+                    break;
+                case ParseMode.Expand:
+                    tempList.Add(ID.ExpandedDicSymbol.ToString());
+                    tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
         else
         {

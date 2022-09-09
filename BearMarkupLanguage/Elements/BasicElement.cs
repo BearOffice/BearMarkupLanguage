@@ -18,21 +18,20 @@ internal class BasicElement : IBaseElement, IEquatable<BasicElement>
     {
         get
         {
-            if (!Literal.ContainsEscapeChar(EscapeLevel.CollapsedBasic)
-                && !Literal.IsNullOrWhiteSpace()
-                && Literal.TrimStartAndEnd() == Literal)
+            if (Literal.IsNullOrWhiteSpace() || Literal.StartsWith(' ') || Literal.EndsWith(' '))
+            {
+                return ParseMode.Expand;
+            }
+            else
             {
                 return Format.PrintMode switch
                 {
-                    PrintMode.Auto => ParseMode.Collapse,
+                    PrintMode.Auto =>
+                        Literal.ContainsEscapeChar(EscapeLevel.CollapsedBasic) ? ParseMode.Expand : ParseMode.Collapse,
                     PrintMode.Compact => ParseMode.Collapse,
                     PrintMode.Expand => ParseMode.Expand,
                     _ => throw new NotImplementedException(),
                 };
-            }
-            else
-            {
-                return ParseMode.Expand;
             }
         }
     }
