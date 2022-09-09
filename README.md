@@ -32,6 +32,9 @@ weather object: $
   sub key: 1.234
 ```
 ```c#
+using BearMarkupLanguage.Serialization;
+using SerializableAttribute = BearMarkupLanguage.Serialization.SerializableAttribute;
+
 [Serializable]
 class Weather
 {
