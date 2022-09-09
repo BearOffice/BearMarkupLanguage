@@ -1,32 +1,37 @@
-﻿int: 100
-double: 0.11
-time: 12:00:00
+[evalue]
+a escaped value: Hello.\nGoodbye.
 
-# this is a literial value
-[li]
-literial: |
-  Today 
-  is 
-  a good day.
+[lvalue]
+a literal value: @
+  Hello.
+  Goodbye.
+|
 
-escaped: A\ngood\nday.
+[array]
+an array: 
+  - apple
+  - banana
 
->>> list group
-expanded: >
-  - >
-    - abcdefg
-    - hijklmn
-  - >
-    - opqrstu
-folded: >
-  [["this", "is", "a", "list"], []]
-mixed: >
-  - >
-    ["1.23", "4.56", "7.89", "0.12", "3.45", "6.78"]
-  - >
-    ["9.12", "3.45", "6.78", "9.01", "2.34", "5.67"]
+[tuple]
+a tuple: 
+  - apple
+  - $
+    price: $1.5
+    color: red
 
->>> weather obj
-[Temperature]
-the temp: 12.9
-Time: 09:10:11
+[obj]
+weather object: $
+  Time: 12:10:05
+  Temperature: 40.2
+
+> block a <
+# support null value
+[k]
+key: 
+
+# support empty and white space value
+lkey: @
+|
+
+  > sub block aa <
+  sub key: 51

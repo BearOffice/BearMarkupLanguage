@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BearMarkupLanguage", "BearMarkupLanguage\BearMarkupLanguage.csproj", "{A1456974-0C33-4E91-8645-3D3FC74F1269}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{41A52186-92BA-4901-A6F7-97BD92E960BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1456974-0C33-4E91-8645-3D3FC74F1269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1456974-0C33-4E91-8645-3D3FC74F1269}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1456974-0C33-4E91-8645-3D3FC74F1269}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1456974-0C33-4E91-8645-3D3FC74F1269}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41A52186-92BA-4901-A6F7-97BD92E960BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41A52186-92BA-4901-A6F7-97BD92E960BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41A52186-92BA-4901-A6F7-97BD92E960BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41A52186-92BA-4901-A6F7-97BD92E960BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37FDDF3D-987E-48B3-BCA0-2AA9E6702033}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Version>5.0.0</Version>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>Bear</Authors>
+    <Company>Bear Office</Company>
+  </PropertyGroup>
+
+</Project>
