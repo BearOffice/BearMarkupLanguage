@@ -7,13 +7,9 @@ using BearMarkupLanguage.Text;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Conversion;
 using BearMarkupLanguage.Serialization;
-using System.Security;
 using BearMarkupLanguage.Interpretation;
 using BearMarkupLanguage.Helpers;
 using BearMarkupLanguage.Interpretation.Helpers;
-using System.Diagnostics.Contracts;
-using System.Xml.Linq;
-using static System.Reflection.Metadata.BlobBuilder;
 using BearMarkupLanguage.Elements.Helpers;
 
 namespace BearMarkupLanguage;
@@ -40,7 +36,8 @@ public class BearML
     /// <summary>
     /// Provides methods to read or modify BearML config file.
     /// </summary>
-    /// <param name="path">Path of the config file.</param>
+    /// <param name="path">Path of the config file.
+    /// If the specified file path does not exist, an empty configuration file will be created.</param>
     public BearML(string path)
     {
         var result = new Reader(path).Read(out var lines);
@@ -54,7 +51,8 @@ public class BearML
     /// <summary>
     /// Provides methods to read or modify BearML config file.
     /// </summary>
-    /// <param name="path">Path of the config file</param>
+    /// <param name="path">Path of the config file. 
+    /// If the specified file path does not exist, an empty configuration file will be created.</param>
     /// <param name="providers">Provides methods to convert the specified types.</param>
     public BearML(string path, IConversionProvider[] providers)
     {
