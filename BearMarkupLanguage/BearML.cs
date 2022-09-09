@@ -34,13 +34,35 @@ public class BearML
     public bool AutoFormat { get; set; } = false;
 
     /// <summary>
+    /// Provides methods to read or modify BearML config without a file.
+    /// </summary>
+    public BearML()
+    {
+        _rootBlock = RootBlockInterpreter.Interprete(new ReferList<string>(Array.Empty<string>())).Value;
+        _writer = null;
+        _providers = Array.Empty<IConversionProvider>();
+    }
+
+    /// <summary>
+    /// Provides methods to read or modify BearML config without a file.
+    /// </summary>
+    /// <param name="providers">Provides methods to convert the specified types.</param>
+    public BearML(IConversionProvider[] providers)
+    {
+        _rootBlock = RootBlockInterpreter.Interprete(new ReferList<string>(Array.Empty<string>())).Value;
+        _writer = null;
+        _providers = providers;
+    }
+
+    /// <summary>
     /// Provides methods to read or modify BearML config file.
     /// </summary>
     /// <param name="path">Path of the config file.
     /// If the specified file path does not exist, an empty configuration file will be created.</param>
-    public BearML(string path)
+    /// <param name="overwrites">Overwrites file if exists.</param>
+    public BearML(string path, bool overwrites = false)
     {
-        var result = new Reader(path).Read(out var lines);
+        var result = new Reader(path, overwrites).Read(out var lines);
         if (!result.IsSuccess) ThrowParseException(lines[result.Error.LineIndex], result.Error);
 
         _rootBlock = result.Value;
@@ -54,9 +76,10 @@ public class BearML
     /// <param name="path">Path of the config file. 
     /// If the specified file path does not exist, an empty configuration file will be created.</param>
     /// <param name="providers">Provides methods to convert the specified types.</param>
-    public BearML(string path, IConversionProvider[] providers)
+    /// <param name="overwrites">Overwrites file if exists.</param>
+    public BearML(string path, IConversionProvider[] providers, bool overwrites = false)
     {
-        var result = new Reader(path).Read(out var lines);
+        var result = new Reader(path, overwrites).Read(out var lines);
         if (!result.IsSuccess) ThrowParseException(lines[result.Error.LineIndex], result.Error);
 
         _rootBlock = result.Value;
@@ -864,7 +887,7 @@ public class BearML
             KeyValuesDic = new OrderedDictionary<Key, IBaseElement>(),
             TaggedLines = new List<TaggedLine>()
         });
-        // _rootBlock.TaggedLines.Add(new TaggedLine { LineType = LineType.Block, BlockKey = keyObj });
+        _rootBlock.TaggedLines.Add(new TaggedLine { LineType = LineType.Block, BlockKey = keyObj });
         _rootBlock.SetClearParseStatus();  // If this flag is set, tagged lines are ignored.
         AutoSave();
     }
@@ -888,7 +911,7 @@ public class BearML
             KeyValuesDic = new OrderedDictionary<Key, IBaseElement>(),
             TaggedLines = new List<TaggedLine>()
         });
-        // super.TaggedLines.Add(new TaggedLine { LineType = LineType.Block, BlockKey = keyObj });
+        super.TaggedLines.Add(new TaggedLine { LineType = LineType.Block, BlockKey = keyObj });
         super.SetClearParseStatus();
         ResetTaggedValueLinesInSuperChain(superBlock);
         AutoSave();
@@ -1182,6 +1205,10 @@ public class BearML
     /// </summary>
     public void Save()
     {
+        if (_writer is null)
+            throw new Exception("The config file cannot be saved because no config file was specified. " +
+                "Consider using method 'SaveTo'");
+
         _writer.Write(_rootBlock, AutoFormat);
     }
 
@@ -1196,7 +1223,7 @@ public class BearML
 
     private void AutoSave()
     {
-        if (!DelayedSave) Save();
+        if (!DelayedSave && _writer is not null) Save();
     }
 
     /// <summary>

@@ -12,12 +12,11 @@ internal class Reader
 {
     private readonly string _path;
 
-    internal Reader(string path)
+    internal Reader(string path, bool overwrites)
     {
         _path = path;
 
-        // Create blank file if needed.
-        if (!File.Exists(path)) File.Create(path);
+        if (!File.Exists(path) || overwrites) using (File.Create(path)) { };
     }
 
     internal RootBlockResult Read(out string[] lines)
