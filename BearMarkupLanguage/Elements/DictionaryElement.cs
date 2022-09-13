@@ -36,7 +36,7 @@ internal class DictionaryElement: IBaseElement
             }
             else
             {
-                return ParseMode.Collapse;  // cannot display empty list nor white space key
+                return ParseMode.Collapse;  // cannot display empty dic nor white space key
             }
         }
     }

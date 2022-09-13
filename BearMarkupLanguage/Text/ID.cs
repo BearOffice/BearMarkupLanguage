@@ -25,6 +25,5 @@ internal static class ID
     internal const char BlockL = '>';
     internal const char BlockR = '<';
     internal const string Indent = "  ";
-    internal const string DefaultBlockKey = "default";
     internal const string EmptySymbol = "null";
 }

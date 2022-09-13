@@ -114,8 +114,17 @@ internal static class ContextInterpreter
                 if (IsLiteralElement(lines[1..], out var endIndex))
                 {
                     endAtIndex = 1 + endIndex;
-                    var result = new BasicElementInterpreter().Interprete(lines[1..endAtIndex].IncrOrDecrDepth(-1), ParseMode.Expand);
-                    return ElementResult.PassToParent(result, 1, ID.Indent.Length);
+
+                    if (endAtIndex != 1)
+                    {
+                        var result = new BasicElementInterpreter().Interprete(lines[1..endAtIndex].IncrOrDecrDepth(-1), ParseMode.Expand);
+                        return ElementResult.PassToParent(result, 1, ID.Indent.Length);
+                    }
+                    else
+                    {
+                        var result = new EmptyElementInterpreter().Interprete(null, ParseMode.Expand);
+                        return ElementResult.PassToParent(result, 1, ID.Indent.Length);
+                    }
                 }
             }
             else if (lines[0].TrimStartAndEnd() == ID.ExpandedDicSymbol.ToString())

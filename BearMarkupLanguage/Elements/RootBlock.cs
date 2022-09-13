@@ -9,6 +9,7 @@ using BearMarkupLanguage.Helpers;
 using BearMarkupLanguage.Text;
 using BearMarkupLanguage.Elements.Helpers;
 using System.Collections;
+using BearMarkupLanguage.Core;
 
 namespace BearMarkupLanguage.Elements;
 
@@ -170,7 +171,19 @@ internal class RootBlock
         }
         else if (element is EmptyElement)
         {
-            tempList.Add(elemLiteral[0]);
+            switch (Format.PrintMode)  // Empty element needs a different treatment
+            {
+                case PrintMode.Auto:
+                case PrintMode.Compact:
+                    tempList.Add(elemLiteral[0]);
+                    break;
+                case PrintMode.Expand:
+                    tempList.Add(ID.LiteralElementSymbol.ToString());
+                    tempList.Add(ID.EndOfLine.ToString());
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
         else if (element is DictionaryElement)
         {
