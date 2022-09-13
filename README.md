@@ -1,6 +1,6 @@
 # BearMarkupLanguage
 A class library to read or modify BearML config file simply.  
-BearML is an original markup language. Language detail: [Wiki](../../wiki/Bear-Markup-Language)  
+BearML is an original markup language. Language detail: [Wiki](../../wiki/Bear-Markup-Language-ver-5.0)  
 
 BearML version 5.0 <b>is not</b> compatible with version 3.0.
 <br>
