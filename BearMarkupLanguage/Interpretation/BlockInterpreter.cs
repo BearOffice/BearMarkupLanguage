@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Elements.Helpers;
 using BearMarkupLanguage.Helpers;
@@ -201,15 +200,12 @@ internal static class BlockInterpreter
         if (keyLinesAndAbove.Count == 1)
             return new BlockKey { Name = keyName };
 
-        var comment = default(string);
+        var commentsList = new List<string>();
         for (var i = keyLinesAndAbove.Count - 2; i >= 0; i--)  // -2 -> Start at last 2nd line
         {
             if (ContextInterpreter.IsCommentLine(keyLinesAndAbove[i]) && keyLinesAndAbove[i].HasDepthOf(1))
             {
-                if (comment is null)
-                    comment = GetComment(keyLinesAndAbove[i]);
-                else
-                    comment = comment + '\n' + GetComment(keyLinesAndAbove[i]);
+                commentsList.Add(GetComment(keyLinesAndAbove[i]));
                 keyLinesNum++;
             }
             else
@@ -217,6 +213,10 @@ internal static class BlockInterpreter
                 break;
             }
         }
+
+        var comment = default(string);
+        if (commentsList.Count != 0)
+            comment = commentsList.Reverse<string>().ToArray().ConcatByLF();
 
         return new BlockKey { Name = keyName, Comment = comment };
     }

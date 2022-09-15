@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Elements.Helpers;
 using BearMarkupLanguage.Helpers;
@@ -24,7 +23,7 @@ internal static class RootBlockInterpreter
         {
             if (ContextInterpreter.IsKeyLine(lines[i]))
             {
-                var keyResult = KeyInterpreter.Interprete(lines[..(i + 1)], 
+                var keyResult = KeyInterpreter.Interprete(lines[..(i + 1)],
                     out var hasAlias, out var commentLinesNum, out var idIndex);
                 if (!keyResult.IsSuccess) return RootBlockResult.Fail(keyResult.Error);  // no need to change index
                 var key = keyResult.Value;
@@ -211,15 +210,12 @@ internal static class RootBlockInterpreter
         if (keyLinesAndAbove.Count == 1)
             return new BlockKey { Name = keyName };
 
-        var comment = default(string);
+        var commentsList = new List<string>();
         for (var i = keyLinesAndAbove.Count - 2; i >= 0; i--)  // -2 -> Start at last 2nd line
         {
             if (ContextInterpreter.IsCommentLine(keyLinesAndAbove[i]))
             {
-                if (comment is null)
-                    comment = GetComment(keyLinesAndAbove[i]);
-                else
-                    comment = comment + '\n' + GetComment(keyLinesAndAbove[i]);
+                commentsList.Add(GetComment(keyLinesAndAbove[i]));
                 keyLinesNum++;
             }
             else
@@ -227,6 +223,10 @@ internal static class RootBlockInterpreter
                 break;
             }
         }
+
+        var comment = default(string);
+        if (commentsList.Count != 0)
+            comment = commentsList.Reverse<string>().ToArray().ConcatByLF();
 
         return new BlockKey { Name = keyName, Comment = comment };
     }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Helpers;
 using BearMarkupLanguage.Interpretation.Helpers;
@@ -30,7 +28,7 @@ internal static class KeyInterpreter
         if (keyLinesAndAbove.Count == 1)
             return KeyResult.Success(new Key { Name = keyName });
 
-        var comment = default(string);
+        var commentsList = new List<string>();
         var keyAlias = default(string[]);
 
         // [^2]
@@ -49,7 +47,7 @@ internal static class KeyInterpreter
         }
         else if (ContextInterpreter.IsCommentLine(keyLinesAndAbove[^2]))
         {
-            comment = GetComment(keyLinesAndAbove[^2]);
+            commentsList.Add(GetComment(keyLinesAndAbove[^2]));
             commentLinesNum++;
         }
         else
@@ -64,13 +62,14 @@ internal static class KeyInterpreter
             {
                 if (!ContextInterpreter.IsCommentLine(keyLinesAndAbove[i])) break;
 
-                if (comment is null)
-                    comment = GetComment(keyLinesAndAbove[i]);
-                else
-                    comment = comment + '\n' + GetComment(keyLinesAndAbove[i]);
+                commentsList.Add(GetComment(keyLinesAndAbove[i]));
                 commentLinesNum++;
             }
         }
+
+        var comment = default(string);
+        if (commentsList.Count != 0)
+            comment = commentsList.Reverse<string>().ToArray().ConcatByLF();
 
         return KeyResult.Success(new Key { Name = keyName, Aliases = keyAlias, Comment = comment });
     }

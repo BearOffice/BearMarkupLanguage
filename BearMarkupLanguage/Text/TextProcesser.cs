@@ -1,7 +1,8 @@
-﻿using BearMarkupLanguage.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using BearMarkupLanguage.Helpers;
 
 namespace BearMarkupLanguage.Text;
 
@@ -89,10 +90,24 @@ internal static class TextProcesser
         return sb.ToString();
     }
 
-    internal static string[] SplitToLines(this string input)
+    internal static string[] SplitByLF(this string input)
     {
         return input.Replace("\r\n", "\n")
                     .Split(new[] { '\n', '\r' });
+    }
+
+    internal static string ConcatByLF(this string[] input)
+    {
+        if (input.Length == 0) return "";
+
+        var sb = new StringBuilder();
+        foreach (var str in input.SkipLast(1))
+        {
+            sb.AppendLine(str);
+        }
+        sb.Append(input[^1]);
+
+        return sb.ToString();
     }
 
     internal static bool HasDepthOf(this string input, int depth)
