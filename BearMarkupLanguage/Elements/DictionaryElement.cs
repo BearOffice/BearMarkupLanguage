@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BearMarkupLanguage.Core;
 using BearMarkupLanguage.Text;
 using BearMarkupLanguage.Helpers;
 using BearMarkupLanguage.Conversion;
-using System.Collections;
 
 namespace BearMarkupLanguage.Elements;
 

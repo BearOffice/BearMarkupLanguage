@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Text;
 
 namespace BearMarkupLanguage.Elements;
@@ -24,7 +22,7 @@ internal struct BlockKey : IEquatable<BlockKey>
 
         if (Comment is not null)
         {
-            tempList.AddRange(Comment.SplitToLines()
+            tempList.AddRange(Comment.SplitByLF()
                                      .Select(item => ID.Comment + item));
         }
 

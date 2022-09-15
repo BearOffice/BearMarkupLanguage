@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Conversion;
 using BearMarkupLanguage.Helpers;
-using System.Xml.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
 
 namespace BearMarkupLanguage.Serialization;
 

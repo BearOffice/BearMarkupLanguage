@@ -29,7 +29,7 @@ internal struct Key : IEquatable<Key>
 
         if (Comment is not null)
         {
-            tempList.AddRange(Comment.SplitToLines()
+            tempList.AddRange(Comment.SplitByLF()
                                      .Select(item => ID.Comment + item));
         }
 

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using BearMarkupLanguage.Conversion;
 using BearMarkupLanguage.Core;
 using BearMarkupLanguage.Text;
@@ -71,7 +68,7 @@ internal class BasicElement : IBaseElement, IEquatable<BasicElement>
 
     private string[] ExpandedParse()
     {
-        var literal = Literal.SplitToLines();
+        var literal = Literal.SplitByLF();
         return literal;
     }
 

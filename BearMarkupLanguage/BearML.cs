@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using System.Text;
 using BearMarkupLanguage.Core;
 using BearMarkupLanguage.Text;
 using BearMarkupLanguage.Elements;
@@ -1249,16 +1249,7 @@ public class BearML
         var element = ElementConverter.BuildElement(source, providers);
         var literals = element.ParseToLiteral(element.PreferredParseMode);
 
-        var sb = new StringBuilder();
-        foreach (var literal in literals.SkipLast(1))
-        {
-            sb.Append(literal).Append('\n');
-        }
-
-        if (literals.Length > 0)
-            sb.Append(literals[^1]);
-
-        return sb.ToString();
+        return literals.ConcatByLF();
     }
 
     /// <summary>
@@ -1275,16 +1266,7 @@ public class BearML
         var element = ElementConverter.BuildElement(source, providers);
         var literals = RootBlock.ValueParse(element);
 
-        var sb = new StringBuilder();
-        foreach (var literal in literals.SkipLast(1))
-        {
-            sb.Append(literal).Append('\n');
-        }
-
-        if (literals.Length > 0)
-            sb.Append(literals[^1]);
-
-        return sb.ToString();
+        return literals.ConcatByLF();
     }
 
     /// <summary>
@@ -1298,7 +1280,7 @@ public class BearML
     {
         providers ??= Array.Empty<IConversionProvider>();
 
-        var literals = new ReferList<string>(literal.SplitToLines());
+        var literals = new ReferList<string>(literal.SplitByLF());
         var result = ContextInterpreter.ContentInterprete(literals, out _);
 
         if (!result.IsSuccess)

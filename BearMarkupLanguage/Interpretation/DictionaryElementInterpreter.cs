@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Helpers;
 using BearMarkupLanguage.Interpretation.Helpers;

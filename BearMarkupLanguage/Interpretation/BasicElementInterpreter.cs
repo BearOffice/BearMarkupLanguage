@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BearMarkupLanguage.Elements;
 using BearMarkupLanguage.Interpretation.Helpers;
 using BearMarkupLanguage.Text;
@@ -29,8 +28,6 @@ internal class BasicElementInterpreter : IInterpreter
 
     private static ElementResult ExpandedInterprete(string[] lines)
     {
-        var sb = lines.SkipLast(1).Aggregate(new StringBuilder(), (acc, item) => acc.AppendLine(item));
-        if (lines.Length > 0) sb.Append(lines[^1]);
-        return ElementResult.Success(new BasicElement(sb.ToString()));
+        return ElementResult.Success(new BasicElement(lines.ConcatByLF()));
     }
 }
