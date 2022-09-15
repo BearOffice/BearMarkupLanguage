@@ -1,37 +1,20 @@
-[evalue]
-a escaped value: Hello.\nGoodbye.
-
-[lvalue]
-a literal value: @
-  Hello.
-  Goodbye.
+[desc]
+description: @
+  File for chain stores.
+  Contains stock data.
 |
 
-[array]
-an array: 
-  - apple
-  - banana
+# stock for all stores
+stock: $
+  phones: $
+    apple phone: 2
+    melon phone: 10
 
-[tuple]
-a tuple: 
-  - apple
-  - $
-    price: $1.5
-    color: red
+> central store <
+product list:
+  - fruits
+  - phones
 
-[obj]
-weather object: $
-  Time: 12:10:05
-  Temperature: 40.2
-
-> block a <
-# support null value
-[k]
-key: 
-
-# support empty and white space value
-lkey: @
-|
-
-  > sub block aa <
-  sub key: 51
+  > phones <
+  apple phone: 2
+  melon phone: 10
