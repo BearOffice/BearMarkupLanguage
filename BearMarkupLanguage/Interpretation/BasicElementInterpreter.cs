@@ -28,6 +28,6 @@ internal class BasicElementInterpreter : IInterpreter
 
     private static ElementResult ExpandedInterprete(string[] lines)
     {
-        return ElementResult.Success(new BasicElement(lines.ConcatByLF()));
+        return ElementResult.Success(new BasicElement(lines.ConcatWithLF()));
     }
 }

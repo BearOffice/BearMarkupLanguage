@@ -1249,7 +1249,7 @@ public class BearML
         var element = ElementConverter.BuildElement(source, providers);
         var literals = element.ParseToLiteral(element.PreferredParseMode);
 
-        return literals.ConcatByLF();
+        return literals.ConcatWithLF();
     }
 
     /// <summary>
@@ -1266,7 +1266,7 @@ public class BearML
         var element = ElementConverter.BuildElement(source, providers);
         var literals = RootBlock.ValueParse(element);
 
-        return literals.ConcatByLF();
+        return literals.ConcatWithLF();
     }
 
     /// <summary>

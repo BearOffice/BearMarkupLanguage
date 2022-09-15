@@ -96,7 +96,7 @@ internal static class TextProcesser
                     .Split(new[] { '\n', '\r' });
     }
 
-    internal static string ConcatByLF(this string[] input)
+    internal static string ConcatWithLF(this string[] input)
     {
         if (input.Length == 0) return "";
 

@@ -226,7 +226,7 @@ internal static class RootBlockInterpreter
 
         var comment = default(string);
         if (commentsList.Count != 0)
-            comment = commentsList.Reverse<string>().ToArray().ConcatByLF();
+            comment = commentsList.Reverse<string>().ToArray().ConcatWithLF();
 
         return new BlockKey { Name = keyName, Comment = comment };
     }

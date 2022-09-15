@@ -69,7 +69,7 @@ internal static class KeyInterpreter
 
         var comment = default(string);
         if (commentsList.Count != 0)
-            comment = commentsList.Reverse<string>().ToArray().ConcatByLF();
+            comment = commentsList.Reverse<string>().ToArray().ConcatWithLF();
 
         return KeyResult.Success(new Key { Name = keyName, Aliases = keyAlias, Comment = comment });
     }
