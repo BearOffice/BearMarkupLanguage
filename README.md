@@ -21,11 +21,11 @@ weather object: $
   Temperature: 40.2
 
 > block <
-  a tuple: 
-    - apple
-    - $
-      price: $1.5
-      color: red
+a tuple: 
+  - apple
+  - $
+    price: $1.5
+    color: red
   
   # support nested block
   > sub block <
