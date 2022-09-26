@@ -33,7 +33,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                 Message = "The format of this element is not valid."
             }); ;
 
-        var tempDir = new OrderedDictionary<BasicElement, IBaseElement>();
+        var tempDic = new OrderedDictionary<BasicElement, IBaseElement>();
 
         var isSplited = true;
         var isEmpty = true;
@@ -88,10 +88,18 @@ internal class DictionaryElementInterpreter : IInterpreter
                 if (tempKey is null)
                 {
                     tempKey = (BasicElement)result.Value;
+
+                    // check if key already existed.
+                    if (tempDic.ContainsKey(tempKey)) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                    {
+                        LineIndex = 0,
+                        CharIndex = i,
+                        Message = "Key must be unique."
+                    });
                 }
                 else
                 {
-                    tempDir.Add(tempKey, result.Value);
+                    tempDic.Add(tempKey, result.Value);
                     tempKey = null;
                     valueEntry = false;
                     isSplited = false;
@@ -127,7 +135,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                     var result = new EmptyElementInterpreter().Interprete(null, ParseMode.Collapse);
                     if (!result.IsSuccess) return ElementResult.PassToParent(result, 0, i);
 
-                    tempDir.Add(tempKey, result.Value);
+                    tempDic.Add(tempKey, result.Value);
                     i = i + ID.EmptySymbol.Length - 1;
                     tempKey = null;
                     valueEntry = false;
@@ -203,7 +211,7 @@ internal class DictionaryElementInterpreter : IInterpreter
             Message = "Unnecessary split symbol."
         });
 
-        return ElementResult.Success(new DictionaryElement(tempDir));
+        return ElementResult.Success(new DictionaryElement(tempDic));
     }
 
     private static ElementResult ExpandedInterprete(string[] lines)
@@ -223,13 +231,21 @@ internal class DictionaryElementInterpreter : IInterpreter
                 });
 
             var key = GetKey(lines[i], out var idIndex);
-            if (key is null)
+            if (key is null) return ElementResult.Fail(new InvalidFormatExceptionArgs
+            {
+                LineIndex = i,
+                CharIndex = 0,
+                Message = "Key cannot be empty or white space in expanded dictionary."
+            });
+            // check if key already existed.
+            if (tempDic.ContainsKey(new BasicElement(key)))
                 return ElementResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = i,
                     CharIndex = 0,
-                    Message = "Key cannot be empty or white space in expanded dictionary."
+                    Message = "Key must be unique."
                 });
+
 
             // key.Length + id's length
             if (idIndex + 1 == lines[i].Length)
@@ -238,7 +254,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                 refLines[i] = refLines[i][(idIndex + 1)..];
 
             var result = ContextInterpreter.ContentInterprete(refLines[i..], out var endAtIndex);
-            if (!result.IsSuccess) 
+            if (!result.IsSuccess)
                 return ElementResult.PassToParent(result, i, 0);
 
             tempDic.Add(new BasicElement(key), result.Value);
