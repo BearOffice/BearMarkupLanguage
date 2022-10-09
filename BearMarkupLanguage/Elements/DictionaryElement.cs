@@ -9,7 +9,7 @@ using BearMarkupLanguage.Conversion;
 
 namespace BearMarkupLanguage.Elements;
 
-internal class DictionaryElement: IBaseElement
+internal class DictionaryElement : IBaseElement
 {
     internal OrderedDictionary<BasicElement, IBaseElement> ElementsDic { get; private init; }
     public ParseMode PreferredParseMode
@@ -70,8 +70,19 @@ internal class DictionaryElement: IBaseElement
     private object ConvertIDictionaryTo(Type targetType, IConversionProvider[] providers)
     {
         // IDictionary contains two generic arguments
-        var keyType = targetType.GetGenericArguments()[0];
-        var valueType = targetType.GetGenericArguments()[1];
+        var arguments = targetType.GetGenericArguments();
+        // try to find key and value types in target type if target type is not generic / doesn't contain 2 arguments
+        if (arguments.Length < 2) 
+        {
+            var iDicInterface = targetType.GetInterfaces()
+                                          .FirstOrDefault(i => i.GetGenericTypeDefinitionIfHas() == typeof(IDictionary<,>));
+            arguments = iDicInterface?.GetGenericArguments();
+        }
+        if (arguments is null || arguments.Length < 2)
+            throw new TypeNotSupportException($"Cannot find key or value type in Type {targetType}");
+        
+        var keyType = arguments[0];
+        var valueType = arguments[1];
 
         var preferredKeyType = IBaseElement.PreferredElementType(keyType);
         var preferredValueType = IBaseElement.PreferredElementType(valueType);
@@ -257,9 +268,9 @@ internal class DictionaryElement: IBaseElement
 
     private bool IsKeysNeedCollapse()
     {
-        foreach((var key, _) in ElementsDic)
+        foreach ((var key, _) in ElementsDic)
         {
-            if (key.Literal.IsNullOrWhiteSpace() 
+            if (key.Literal.IsNullOrWhiteSpace()
                 || key.Literal.StartsWith(' ') || key.Literal.EndsWith(' '))
                 return true;
         }

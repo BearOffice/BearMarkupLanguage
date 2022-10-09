@@ -9,7 +9,7 @@ using BearMarkupLanguage.Helpers;
 
 namespace BearMarkupLanguage.Elements;
 
-internal class ListElement: IBaseElement
+internal class ListElement : IBaseElement
 {
     internal List<IBaseElement> ElementsList { get; private init; }
     public ParseMode PreferredParseMode
@@ -50,11 +50,11 @@ internal class ListElement: IBaseElement
         ElementsList = elementsList;
     }
 
-    public object ConvertTo(Type targetType, IConversionProvider[] providers) 
+    public object ConvertTo(Type targetType, IConversionProvider[] providers)
     {
         if (targetType.IsListType())
         {
-            if (!targetType.IsSZArray)
+            if (targetType.IsArray && !targetType.IsSZArray)
                 throw new TypeNotSupportException("Do not support multi-dimensional array.");
 
             return ConvertIListTo(targetType, providers);
@@ -72,14 +72,28 @@ internal class ListElement: IBaseElement
 
     private object ConvertIListTo(Type targetType, IConversionProvider[] providers)
     {
-        Type argumentType;
-        if (targetType.IsSZArray)
+        var argumentType = default(Type);
+
+        // Array needs a special treatment
+        if (targetType.IsArray && targetType.IsSZArray)
         {
-            argumentType = targetType.GetElementType();  // Array needs a special treatment
+            argumentType = targetType.GetElementType();  
         }
         else
         {
-            argumentType = targetType.GetGenericArguments()[0];  // IList only contains one generic argument
+            // IList only contains one generic argument
+            var arguments = targetType.GetGenericArguments();
+            // try to find elements type in target type if target type is not generic / doesn't contain 1 argument
+            if (arguments.Length < 1)
+            {
+                var iListInterface = targetType.GetInterfaces()
+                                               .FirstOrDefault(i => i.GetGenericTypeDefinitionIfHas() == typeof(IList<>));
+                arguments = iListInterface?.GetGenericArguments();
+            }
+            if (arguments is null || arguments.Length < 1)
+                throw new TypeNotSupportException($"Cannot find elements type in Type {targetType}");
+
+            argumentType = arguments[0];
         }
 
         var preferredType = IBaseElement.PreferredElementType(argumentType);

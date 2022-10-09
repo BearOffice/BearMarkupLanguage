@@ -246,7 +246,6 @@ internal class DictionaryElementInterpreter : IInterpreter
                     Message = "Key must be unique."
                 });
 
-
             // key.Length + id's length
             if (idIndex + 1 == lines[i].Length)
                 refLines[i] = "";

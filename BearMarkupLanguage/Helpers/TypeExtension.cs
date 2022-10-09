@@ -71,12 +71,12 @@ internal static class TypeExtension
 
     internal static bool IsListType(this Type type)
     {
-        return type.HasInterface(typeof(IList));
+        return type.HasInterface(typeof(IList)) || type.HasInterface(typeof(IList<>));
     }
 
     internal static bool IsDictionaryType(this Type type)
     {
-        return type.HasInterface(typeof(IDictionary));
+        return type.HasInterface(typeof(IDictionary)) || type.HasInterface(typeof(IDictionary<,>));
     }
 
     internal static bool IsSerializableObject(this Type type)
