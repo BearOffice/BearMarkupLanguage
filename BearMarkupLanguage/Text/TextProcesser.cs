@@ -22,11 +22,11 @@ internal static class TextProcesser
     {
         foreach (var (e, l) in _escapeChars)
         {
-            if (e == ch && l <= level)
+            if (e == ch)
             {
-                if (level <= EscapeLevel.Middle)
+                if (l <= EscapeLevel.Middle && l <= level)
                     return true;
-                else if (l < EscapeLevel.Middle || l == level)
+                else if (l > EscapeLevel.Middle && l == level)
                     return true;
             }
         }

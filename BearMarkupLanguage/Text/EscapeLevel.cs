@@ -10,7 +10,6 @@ internal enum EscapeLevel
     Low,
     Middle,
     // high below
-    High,
     CollapsedBasic,
     BlockKey,
     Key
