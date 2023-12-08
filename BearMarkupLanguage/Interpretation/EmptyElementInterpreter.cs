@@ -10,7 +10,7 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal class EmptyElementInterpreter : IInterpreter
 {
-    public ElementResult Interprete(string[] lines, ParseMode mode)
+    public ElementResult Interpret(string[] lines, ParseMode mode)
     {
         return ElementResult.Success(new EmptyElement());
     }

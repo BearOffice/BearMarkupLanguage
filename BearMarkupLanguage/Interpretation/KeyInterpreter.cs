@@ -11,7 +11,7 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal static class KeyInterpreter
 {
-    internal static KeyResult Interprete(ReferList<string> keyLinesAndAbove, out bool hasAlias,
+    internal static KeyResult Interpret(ReferList<string> keyLinesAndAbove, out bool hasAlias,
         out int commentLinesNum, out int idIndex)
     {
         hasAlias = false;

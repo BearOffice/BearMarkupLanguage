@@ -54,11 +54,11 @@ internal class DictionaryElement : IBaseElement
     {
         if (targetType.IsDictionaryType())
         {
-            return ConvertIDictionaryTo(targetType, providers);
+            return ConvertDictionaryTypeTo(targetType, providers);
         }
         else if (targetType.IsSerializableObject())
         {
-            return ConvertObjectTo(targetType, providers);
+            return ConvertObjectTypeTo(targetType, providers);
         }
         else
         {
@@ -67,7 +67,7 @@ internal class DictionaryElement : IBaseElement
         }
     }
 
-    private object ConvertIDictionaryTo(Type targetType, IConversionProvider[] providers)
+    private object ConvertDictionaryTypeTo(Type targetType, IConversionProvider[] providers)
     {
         // IDictionary contains two generic arguments
         var arguments = targetType.GetGenericArguments();
@@ -102,8 +102,8 @@ internal class DictionaryElement : IBaseElement
             if (values[i].GetType() != preferredValueType && values[i].GetType() != typeof(EmptyElement))
                 throw new TypeNotMatchException($"Type of value not match.");
 
-            var keyValuePairconsInfo = keyValueType.GetConstructor(new[] { keyType, valueType });
-            var keyValuePair = keyValuePairconsInfo.Invoke(new[] {
+            var keyValuePairConsInfo = keyValueType.GetConstructor(new[] { keyType, valueType });
+            var keyValuePair = keyValuePairConsInfo.Invoke(new[] {
                 keys[i].ConvertTo(keyType, providers),
                 values[i].ConvertTo(valueType, providers)
             });
@@ -111,15 +111,13 @@ internal class DictionaryElement : IBaseElement
             targetArr.SetValue(keyValuePair, i);
         }
 
-        var consInfo = targetType.GetConstructor(new[] { targetArr.GetType() });
-
-        if (consInfo is null)
-            throw new TypeNotMatchException($"No constructor found for Type {targetType}.");
+        var consInfo = targetType.GetConstructor(new[] { targetArr.GetType() }) 
+            ?? throw new TypeNotMatchException($"No constructor found for Type {targetType}.");
 
         return consInfo.Invoke(new[] { targetArr });
     }
 
-    private object ConvertObjectTo(Type targetType, IConversionProvider[] providers)
+    private object ConvertObjectTypeTo(Type targetType, IConversionProvider[] providers)
     {
         var target = Activator.CreateInstance(targetType);
         var count = 0;

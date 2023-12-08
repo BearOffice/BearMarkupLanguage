@@ -62,7 +62,7 @@ internal static class ContextInterpreter
     }
 
     // lines[0] without key
-    internal static ElementResult ContentInterprete(ReferList<string> lines, out int endAtIndex)
+    internal static ElementResult InterpretContent(ReferList<string> lines, out int endAtIndex)
     {
         if (lines[0].IsNullOrWhiteSpace())
         {
@@ -77,17 +77,17 @@ internal static class ContextInterpreter
                     {
                         endAtIndex = GetMultiLinesElementEndIndex(lines[i..]) + i;
                         result = new ListElementInterpreter()
-                            .Interprete(lines[i..(endAtIndex + 1)].IncrOrDecrDepth(-1), ParseMode.Expand);
+                            .Interpret(lines[i..(endAtIndex + 1)].IncrOrDecrDepth(-1), ParseMode.Expand);
                     }
                     else if (lines[i][2] == ID.CollapsedListNodeL)
                     {
                         endAtIndex = 1;
-                        result = new ListElementInterpreter().Interprete(new[] { lines[i][2..] }, ParseMode.Collapse);
+                        result = new ListElementInterpreter().Interpret(new[] { lines[i][2..] }, ParseMode.Collapse);
                     }
                     else if (lines[i][2] == ID.CollapsedDicNodeL)
                     {
                         endAtIndex = 1;
-                        result = new DictionaryElementInterpreter().Interprete(new[] { lines[i][2..] }, ParseMode.Collapse);
+                        result = new DictionaryElementInterpreter().Interpret(new[] { lines[i][2..] }, ParseMode.Collapse);
                     }
                     else
                     {
@@ -103,7 +103,7 @@ internal static class ContextInterpreter
             }
 
             endAtIndex = 0;
-            return new EmptyElementInterpreter().Interprete(null, ParseMode.Expand);
+            return new EmptyElementInterpreter().Interpret(null, ParseMode.Expand);
         }
         else
         {
@@ -115,12 +115,12 @@ internal static class ContextInterpreter
 
                     if (endAtIndex != 1)
                     {
-                        var result = new BasicElementInterpreter().Interprete(lines[1..endAtIndex].IncrOrDecrDepth(-1), ParseMode.Expand);
+                        var result = new BasicElementInterpreter().Interpret(lines[1..endAtIndex].IncrOrDecrDepth(-1), ParseMode.Expand);
                         return ElementResult.PassToParent(result, 1, ID.Indent.Length);
                     }
                     else
                     {
-                        var result = new EmptyElementInterpreter().Interprete(null, ParseMode.Expand);
+                        var result = new EmptyElementInterpreter().Interpret(null, ParseMode.Expand);
                         return ElementResult.PassToParent(result, 1, ID.Indent.Length);
                     }
                 }
@@ -136,7 +136,7 @@ internal static class ContextInterpreter
                     {
                         endAtIndex = GetMultiLinesElementEndIndex(lines[i..]) + i;
                         var result = new DictionaryElementInterpreter()
-                            .Interprete(lines[i..(endAtIndex + 1)].IncrOrDecrDepth(-1), ParseMode.Expand);
+                            .Interpret(lines[i..(endAtIndex + 1)].IncrOrDecrDepth(-1), ParseMode.Expand);
                         return ElementResult.PassToParent(result, i, ID.Indent.Length);
                     }
                     else
@@ -147,7 +147,7 @@ internal static class ContextInterpreter
             }
 
             endAtIndex = 0;
-            return new BasicElementInterpreter().Interprete(new[] { lines[0].TrimStartAndEnd() }, ParseMode.Collapse);
+            return new BasicElementInterpreter().Interpret(new[] { lines[0].TrimStartAndEnd() }, ParseMode.Collapse);
         }
     }
 

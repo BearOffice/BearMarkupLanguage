@@ -9,23 +9,23 @@ namespace BearMarkupLanguage.Helpers;
 internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
     private readonly Dictionary<TKey, TValue> _dictionary;
-    private readonly List<TKey> _orderKeyList;
+    private readonly List<TKey> _orderedKeys;
 
     internal OrderedDictionary()
     {
         _dictionary = new Dictionary<TKey, TValue>();
-        _orderKeyList = new List<TKey>();
+        _orderedKeys = new List<TKey>();
     }
 
     internal OrderedDictionary(KeyValuePair<TKey, TValue>[] keyValuePairs)
     {
         _dictionary = new Dictionary<TKey, TValue>();
-        _orderKeyList = new List<TKey>();
+        _orderedKeys = new List<TKey>();
 
         foreach ((var key, var value) in keyValuePairs)
         {
             _dictionary.Add(key, value);
-            _orderKeyList.Add(key);
+            _orderedKeys.Add(key);
         }
     }
 
@@ -35,21 +35,21 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         set => _dictionary[key] = value;
     }
 
-    public ICollection<TKey> Keys => _orderKeyList;
-    public ICollection<TValue> Values => _orderKeyList.Select(key => _dictionary[key]).ToList();
+    public ICollection<TKey> Keys => _orderedKeys;
+    public ICollection<TValue> Values => _orderedKeys.Select(key => _dictionary[key]).ToList();
     public int Count => _dictionary.Count;
     public bool IsReadOnly => false;
 
     public void Add(TKey key, TValue value)
     {
         _dictionary.Add(key, value);
-        _orderKeyList.Add(key);
+        _orderedKeys.Add(key);
     }
 
     public void Add(KeyValuePair<TKey, TValue> item)
     {
         _dictionary.Add(item.Key, item.Value);
-        _orderKeyList.Add(item.Key);
+        _orderedKeys.Add(item.Key);
     }
 
     public bool ChangeKey(TKey oldKey, TKey newKey)
@@ -61,8 +61,8 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         _dictionary.Remove(oldKey);
         _dictionary.Add(newKey, value);
 
-        var index = _orderKeyList.IndexOf(oldKey);
-        _orderKeyList[index] = newKey;
+        var index = _orderedKeys.IndexOf(oldKey);
+        _orderedKeys[index] = newKey;
 
         return true;
     }
@@ -70,7 +70,7 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     public void Clear()
     {
         _dictionary.Clear();
-        _orderKeyList.Clear();
+        _orderedKeys.Clear();
     }
 
     public bool Contains(KeyValuePair<TKey, TValue> item)
@@ -85,7 +85,7 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        _orderKeyList.Select(key => new KeyValuePair<TKey, TValue>(key, _dictionary[key]))
+        _orderedKeys.Select(key => new KeyValuePair<TKey, TValue>(key, _dictionary[key]))
                      .ToList()
                      .CopyTo(array, arrayIndex);
     }
@@ -93,7 +93,7 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     public bool Remove(TKey key)
     {
         var result = _dictionary.Remove(key);
-        _orderKeyList.Remove(key);
+        _orderedKeys.Remove(key);
 
         return result;
     }
@@ -101,7 +101,7 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     public bool Remove(KeyValuePair<TKey, TValue> item)
     {
         var result = _dictionary.Remove(item.Key);
-        _orderKeyList.Remove(item.Key);
+        _orderedKeys.Remove(item.Key);
 
         return result;
     }
@@ -113,7 +113,7 @@ internal class OrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
-        return new OrderedDictionaryEnumerator<TKey, TValue>(_dictionary, _orderKeyList);
+        return new OrderedDictionaryEnumerator<TKey, TValue>(_dictionary, _orderedKeys);
     }
 
     IEnumerator IEnumerable.GetEnumerator()

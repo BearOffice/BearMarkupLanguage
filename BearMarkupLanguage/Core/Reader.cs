@@ -31,6 +31,6 @@ internal class Reader
         }
 
         lines = tempList.ToArray();
-        return RootBlockInterpreter.Interprete(new ReferList<string>(lines));
+        return RootBlockInterpreter.Interpret(new ReferList<string>(lines));
     }
 }

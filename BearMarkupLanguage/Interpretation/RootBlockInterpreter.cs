@@ -12,7 +12,7 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal static class RootBlockInterpreter
 {
-    internal static RootBlockResult Interprete(ReferList<string> lines)
+    internal static RootBlockResult Interpret(ReferList<string> lines)
     {
         var blocksDic = new OrderedDictionary<BlockKey, Block>();
         var keyValuesDic = new OrderedDictionary<Key, IBaseElement>();
@@ -23,7 +23,7 @@ internal static class RootBlockInterpreter
         {
             if (ContextInterpreter.IsKeyLine(lines[i]))
             {
-                var keyResult = KeyInterpreter.Interprete(lines[..(i + 1)],
+                var keyResult = KeyInterpreter.Interpret(lines[..(i + 1)],
                     out var hasAlias, out var commentLinesNum, out var idIndex);
                 if (!keyResult.IsSuccess) return RootBlockResult.Fail(keyResult.Error);  // no need to change index
                 var key = keyResult.Value;
@@ -43,7 +43,7 @@ internal static class RootBlockInterpreter
                 else
                     valueLineAndBelow[0] = lines[i][(idIndex + 1)..].TrimStartAndEnd();  // get value and trim it
 
-                var result = ContextInterpreter.ContentInterprete(valueLineAndBelow, out var endAtIndex);
+                var result = ContextInterpreter.InterpretContent(valueLineAndBelow, out var endAtIndex);
                 if (!result.IsSuccess) return RootBlockResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = result.Error.LineIndex + i,
@@ -104,7 +104,7 @@ internal static class RootBlockInterpreter
 
             if (ContextInterpreter.IsBlockLine(lines[i]))
             {
-                var blockKey = BlockKeyInterprete(lines[..(i + 1)], out var keyLinesNum);
+                var blockKey = BlockKeyInterpret(lines[..(i + 1)], out var keyLinesNum);
                 if (!blockKey.HasValue) return RootBlockResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = i,
@@ -145,7 +145,7 @@ internal static class RootBlockInterpreter
                 {
                     var endIndex = GetBlockEndIndex(lines[(i + 1)..]);
                     var valueLines = lines[(i + 1)..(i + endIndex + 2)];  // i + endIndex + 2 -> i + 1 + endIndex + 1
-                    var result = BlockInterpreter.Interprete(valueLines);
+                    var result = BlockInterpreter.Interpret(valueLines);
                     if (!result.IsSuccess) return RootBlockResult.Fail(new InvalidFormatExceptionArgs
                     {
                         LineIndex = result.Error.LineIndex + 1 + i,  // 1 -> start below block key line
@@ -200,7 +200,7 @@ internal static class RootBlockInterpreter
         });
     }
 
-    private static BlockKey? BlockKeyInterprete(ReferList<string> keyLinesAndAbove, out int keyLinesNum)
+    private static BlockKey? BlockKeyInterpret(ReferList<string> keyLinesAndAbove, out int keyLinesNum)
     {
         keyLinesNum = 1;
         var keyName = GetBlockKey(keyLinesAndAbove[^1]);
@@ -242,7 +242,7 @@ internal static class RootBlockInterpreter
         {
             if (ContextInterpreter.IsBlockLine(linesBelowKey[i]))
             {
-                _ = BlockKeyInterprete(linesBelowKey[..(i + 1)], out var keyLinesNum);
+                _ = BlockKeyInterpret(linesBelowKey[..(i + 1)], out var keyLinesNum);
                 return i - keyLinesNum;
             }
         }

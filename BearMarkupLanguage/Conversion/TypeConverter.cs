@@ -10,52 +10,22 @@ internal static class TypeConverter
 {
     internal static string ConvertToLiteral(object source, IConversionProvider[] providers = null)
     {
-        var sourcetype = source.GetType();
+        var sourceType = source.GetType();
 
-        if (providers is not null)
-        {
-            foreach (var provider in providers)
-            {
-                if (provider.Type == typeof(object))
-                    return provider.ConvertToLiteral(source);
-
-                if (provider.Type.IsGenericTypeDefinition && sourcetype.IsGenericType)
-                {
-                    if (provider.Type == sourcetype.GetGenericTypeDefinition())
-                        return provider.ConvertToLiteral(source);
-                }
-
-                if (provider.Type == sourcetype)
-                    return provider.ConvertToLiteral(source);
-            }
-        }
+        if (TryGetProvider(sourceType, providers, out var provider))
+            return ConvertToLiteralByProvider(source, provider);
 
         if (TryConvert(source, typeof(string), out var target))
             return (string)target;
         else
-            throw new TypeNotSupportException($"Cannot convert {sourcetype}. " +
+            throw new TypeNotSupportException($"Cannot convert {sourceType}. " +
                 $"Consider add IConvertProvider to support such a type.");
     }
 
     internal static object ConvertFromLiteral(string source, Type targetType, IConversionProvider[] providers = null)
     {
-        if (providers is not null)
-        {
-            foreach (var provider in providers)
-            {
-                if (provider.Type == typeof(object))
-                    return provider.ConvertFromLiteral(source);
-
-                if (provider.Type.IsGenericTypeDefinition && targetType.IsGenericType)
-                {
-                    if (provider.Type == targetType.GetGenericTypeDefinition())
-                        return provider.ConvertFromLiteral(source);
-                }
-
-                if (provider.Type == targetType)
-                    return provider.ConvertFromLiteral(source);
-            }
-        }
+        if (TryGetProvider(targetType, providers, out var provider))
+            return ConvertFromLiteralByProvider(source, provider);
 
         if (TryConvert(source, targetType, out var target))
             return target;
@@ -63,7 +33,7 @@ internal static class TypeConverter
             throw new TypeNotSupportException($"Cannot convert {targetType}. " +
                 $"Consider add IConvertProvider to support such a type.");
     }
-    
+
     private static bool TryConvert(object source, Type targetType, out object target)
     {
         var sourceType = source.GetType();
@@ -74,22 +44,51 @@ internal static class TypeConverter
             return true;
         }
 
-        var targetconverter = TypeDescriptor.GetConverter(targetType);
-        if (targetconverter != null && targetconverter.CanConvertFrom(sourceType))
+        var targetConverter = TypeDescriptor.GetConverter(targetType);
+        if (targetConverter != null && targetConverter.CanConvertFrom(sourceType))
         {
-            target = targetconverter.ConvertFrom(source);
+            target = targetConverter.ConvertFrom(source);
             return true;
         }
 
-        var sourceconverter = TypeDescriptor.GetConverter(sourceType);
-        if (sourceconverter != null && sourceconverter.CanConvertTo(targetType))
+        var sourceConverter = TypeDescriptor.GetConverter(sourceType);
+        if (sourceConverter != null && sourceConverter.CanConvertTo(targetType))
         {
-            target = sourceconverter.ConvertTo(source, targetType);
+            target = sourceConverter.ConvertTo(source, targetType);
 
             return true;
         }
 
         target = default;
         return false;
+    }
+
+    internal static bool TryGetProvider(Type type, IConversionProvider[] providers, out IConversionProvider provider)
+    {
+        if (providers is not null)
+        {
+            foreach (var p in providers)
+            {
+                if (p.Type == typeof(object) || p.Type == type ||
+                    (type.IsGenericType && p.Type == type.GetGenericTypeDefinition()))
+                {
+                    provider = p;
+                    return true;
+                }
+            }
+        }
+
+        provider = null;
+        return false;
+    }
+
+    internal static string ConvertToLiteralByProvider(object source, IConversionProvider provider)
+    {
+        return provider.ConvertToLiteral(source);
+    }
+
+    internal static object ConvertFromLiteralByProvider(string source, IConversionProvider provider)
+    {
+        return provider.ConvertFromLiteral(source);
     }
 }

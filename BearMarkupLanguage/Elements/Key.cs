@@ -7,7 +7,7 @@ using BearMarkupLanguage.Text;
 
 namespace BearMarkupLanguage.Elements;
 
-internal struct Key : IEquatable<Key>
+internal readonly struct Key : IEquatable<Key>
 {
     internal string Name { get; init; }
     internal string[] Aliases { get; init; }

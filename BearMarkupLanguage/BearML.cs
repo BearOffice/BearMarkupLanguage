@@ -38,7 +38,7 @@ public class BearML
     /// </summary>
     public BearML()
     {
-        _rootBlock = RootBlockInterpreter.Interprete(new ReferList<string>(Array.Empty<string>())).Value;
+        _rootBlock = RootBlockInterpreter.Interpret(new ReferList<string>(Array.Empty<string>())).Value;
         _writer = null;
         _providers = Array.Empty<IConversionProvider>();
     }
@@ -49,7 +49,7 @@ public class BearML
     /// <param name="providers">Provides methods to convert the specified types.</param>
     public BearML(IConversionProvider[] providers)
     {
-        _rootBlock = RootBlockInterpreter.Interprete(new ReferList<string>(Array.Empty<string>())).Value;
+        _rootBlock = RootBlockInterpreter.Interpret(new ReferList<string>(Array.Empty<string>())).Value;
         _writer = null;
         _providers = providers;
     }
@@ -1281,7 +1281,7 @@ public class BearML
         providers ??= Array.Empty<IConversionProvider>();
 
         var literals = new ReferList<string>(literal.SplitByLF());
-        var result = ContextInterpreter.ContentInterprete(literals, out _);
+        var result = ContextInterpreter.InterpretContent(literals, out _);
 
         if (!result.IsSuccess)
             ThrowParseException(literals[result.Error.LineIndex], result.Error);

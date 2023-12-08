@@ -10,23 +10,23 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal class BasicElementInterpreter : IInterpreter
 {
-    public ElementResult Interprete(string[] lines, ParseMode mode)
+    public ElementResult Interpret(string[] lines, ParseMode mode)
     {
         return mode switch
         {
-            ParseMode.Collapse => CollapsedInterprete(lines[0]),
-            ParseMode.Expand => ExpandedInterprete(lines),
+            ParseMode.Collapse => InterpretCollapsed(lines[0]),
+            ParseMode.Expand => InterpretExpanded(lines),
             _ => throw new NotImplementedException(),
         };
     }
 
-    private static ElementResult CollapsedInterprete(string line)
+    private static ElementResult InterpretCollapsed(string line)
     {
         var literal = line.Unescape();
         return ElementResult.Success(new BasicElement(literal));
     }
 
-    private static ElementResult ExpandedInterprete(string[] lines)
+    private static ElementResult InterpretExpanded(string[] lines)
     {
         return ElementResult.Success(new BasicElement(lines.ConcatWithLF()));
     }

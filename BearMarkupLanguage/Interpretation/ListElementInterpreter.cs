@@ -11,20 +11,20 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal class ListElementInterpreter : IInterpreter
 {
-    public ElementResult Interprete(string[] lines, ParseMode mode)
+    public ElementResult Interpret(string[] lines, ParseMode mode)
     {
         return mode switch
         {
-            ParseMode.Collapse => CollapsedInterprete(lines[0]),
-            ParseMode.Expand => ExpandedInterprete(lines),
+            ParseMode.Collapse => InterpretCollapsed(lines[0]),
+            ParseMode.Expand => InterpretExpanded(lines),
             _ => throw new NotImplementedException(),
         };
     }
 
-    private static ElementResult CollapsedInterprete(string line)
+    private static ElementResult InterpretCollapsed(string line)
     {
         line = line.TrimEnd();
-        var x = CollapsedElementHelper.FindElementEndIndex(line, 0, ID.CollapsedListNodeR);
+
         if (CollapsedElementHelper.FindElementEndIndex(line, 0, ID.CollapsedListNodeR) != line.Length - 1)
             return ElementResult.Fail(new InvalidFormatExceptionArgs
             {
@@ -35,7 +35,7 @@ internal class ListElementInterpreter : IInterpreter
 
         var tempList = new List<IBaseElement>();
 
-        var isSplited = true;
+        var isSplitted = true;
         var isEmpty = true;
         for (var i = 1; i < line.Length - 1; i++)
         {
@@ -44,7 +44,7 @@ internal class ListElementInterpreter : IInterpreter
 
             if (CollapsedElementHelper.IsValidStartNode(ch))
             {
-                if (!isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                if (!isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = 0,
                     CharIndex = i,
@@ -66,31 +66,31 @@ internal class ListElementInterpreter : IInterpreter
                     content = line[i..(index + 1)];
 
                 var result = CollapsedElementHelper.GetInterpreterWithNodeSymbol(ch)
-                                                   .Interprete(new[] { content }, ParseMode.Collapse);
+                                                   .Interpret(new[] { content }, ParseMode.Collapse);
                 if (!result.IsSuccess) return ElementResult.PassToParent(result, 0, i);
 
                 tempList.Add(result.Value);
                 i = index;
-                isSplited = false;
+                isSplitted = false;
                 isEmpty = false;
             }
             else if (ch == ID.EmptySymbol[0])
             {
                 if (line[i..].StartsWith(ID.EmptySymbol))
                 {
-                    if (!isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                    if (!isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
                     {
                         LineIndex = 0,
                         CharIndex = i,
                         Message = "Missing split symbol."
                     });
 
-                    var result = new EmptyElementInterpreter().Interprete(null, ParseMode.Collapse);
+                    var result = new EmptyElementInterpreter().Interpret(null, ParseMode.Collapse);
                     if (!result.IsSuccess) return ElementResult.PassToParent(result, 0, i);
 
                     tempList.Add(result.Value);
                     i = i + ID.EmptySymbol.Length - 1;
-                    isSplited = false;
+                    isSplitted = false;
                     isEmpty = false;
                 }
                 else
@@ -105,7 +105,7 @@ internal class ListElementInterpreter : IInterpreter
             }
             else if (ch == ID.CollapsedElementSplitSymbol)
             {
-                if (isSplited)
+                if (isSplitted)
                     return ElementResult.Fail(new InvalidFormatExceptionArgs
                     {
                         LineIndex = 0,
@@ -113,7 +113,7 @@ internal class ListElementInterpreter : IInterpreter
                         Message = "Unnecessary split symbol."
                     });
                 else
-                    isSplited = true;
+                    isSplitted = true;
             }
             else
             {
@@ -126,7 +126,7 @@ internal class ListElementInterpreter : IInterpreter
             }
         }
 
-        if (!isEmpty && isSplited)
+        if (!isEmpty && isSplitted)
             return ElementResult.Fail(new InvalidFormatExceptionArgs
             {
                 LineIndex = 0,
@@ -136,7 +136,7 @@ internal class ListElementInterpreter : IInterpreter
         return ElementResult.Success(new ListElement(tempList));
     }
 
-    private static ElementResult ExpandedInterprete(string[] lines)
+    private static ElementResult InterpretExpanded(string[] lines)
     {
         var refLines = new ReferList<string>(lines);
         var tempList = new List<IBaseElement>();
@@ -158,7 +158,7 @@ internal class ListElementInterpreter : IInterpreter
             else
                 refLines[i] = refLines[i][1..];
 
-            var result = ContextInterpreter.ContentInterprete(refLines[i..], out var endAtIndex);
+            var result = ContextInterpreter.InterpretContent(refLines[i..], out var endAtIndex);
             if (!result.IsSuccess) 
                 return ElementResult.PassToParent(result, i, 0);
 

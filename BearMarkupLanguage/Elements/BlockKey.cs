@@ -6,7 +6,7 @@ using BearMarkupLanguage.Text;
 
 namespace BearMarkupLanguage.Elements;
 
-internal struct BlockKey : IEquatable<BlockKey>
+internal readonly struct BlockKey : IEquatable<BlockKey>
 {
     internal string Name { get; init; }
     internal string Comment { get; init; }

@@ -18,7 +18,7 @@ internal static class TextProcesser
         (ID.Key, EscapeLevel.Key), (ID.Comment, EscapeLevel.Key)
     };
 
-    internal static bool IsEscapechar(this char ch, EscapeLevel level)
+    internal static bool IsEscapeChar(this char ch, EscapeLevel level)
     {
         foreach (var (e, l) in _escapeChars)
         {
@@ -38,7 +38,7 @@ internal static class TextProcesser
     {
         foreach (var ch in input)
         {
-            if (IsEscapechar(ch, EscapeLevel.Low)) return true;
+            if (IsEscapeChar(ch, EscapeLevel.Low)) return true;
         }
 
         return false;
@@ -261,7 +261,7 @@ internal static class TextProcesser
     {
         for (var i = 0; i < input.Length; i++)
         {
-            if (IsEscapechar(input[i], level))
+            if (IsEscapeChar(input[i], level))
             {
                 return true;
             }
@@ -308,7 +308,7 @@ internal static class TextProcesser
     {
         for (var i = 0; i < input.Length; i++)
         {
-            if (IsEscapechar(input[i], level))
+            if (IsEscapeChar(input[i], level))
             {
                 var sb = new StringBuilder();
                 sb.Append(input, 0, i);
@@ -333,7 +333,7 @@ internal static class TextProcesser
                     while (i < input.Length)
                     {
                         ch = input[i];
-                        if (IsEscapechar(ch, level)) break;
+                        if (IsEscapeChar(ch, level)) break;
 
                         i++;
                     }

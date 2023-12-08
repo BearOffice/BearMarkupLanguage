@@ -12,7 +12,7 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal static class BlockInterpreter
 {
-    internal static BlockResult Interprete(ReferList<string> lines)
+    internal static BlockResult Interpret(ReferList<string> lines)
     {
         var blocksDic = new OrderedDictionary<BlockKey, Block>();
         var keyValuesDic = new OrderedDictionary<Key, IBaseElement>();
@@ -23,7 +23,7 @@ internal static class BlockInterpreter
         {
             if (ContextInterpreter.IsKeyLine(lines[i]))
             {
-                var keyResult = KeyInterpreter.Interprete(lines[..(i + 1)],
+                var keyResult = KeyInterpreter.Interpret(lines[..(i + 1)],
                     out var hasAlias, out var commentLinesNum, out var idIndex);
                 if (!keyResult.IsSuccess) return BlockResult.Fail(keyResult.Error);  // no need to change index
                 var key = keyResult.Value;
@@ -43,7 +43,7 @@ internal static class BlockInterpreter
                 else
                     valueLineAndBelow[0] = valueLineAndBelow[0][(idIndex + 1)..].TrimStartAndEnd();  // get value and trim it
 
-                var result = ContextInterpreter.ContentInterprete(valueLineAndBelow, out var endAtIndex);
+                var result = ContextInterpreter.InterpretContent(valueLineAndBelow, out var endAtIndex);
                 if (!result.IsSuccess) return BlockResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = result.Error.LineIndex + i,
@@ -104,7 +104,7 @@ internal static class BlockInterpreter
 
             if (ContextInterpreter.IsNestedBlockLine(lines[i]))
             {
-                var blockKey = NestedBlockKeyInterprete(lines[..(i + 1)], out var keyLinesNum);
+                var blockKey = InterpretNestedBlockKey(lines[..(i + 1)], out var keyLinesNum);
                 if (!blockKey.HasValue) return BlockResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = i,
@@ -145,7 +145,7 @@ internal static class BlockInterpreter
                 {
                     var endIndex = GetNestedBlockEndIndex(lines[(i + 1)..]);
                     var valueLines = lines[(i + 1)..(i + endIndex + 2)];  // i + endIndex + 2 -> i + 1 + endIndex + 1
-                    var result = Interprete(new ReferList<string>(valueLines.IncrOrDecrDepth(-1)));
+                    var result = Interpret(new ReferList<string>(valueLines.IncrOrDecrDepth(-1)));
                     if (!result.IsSuccess) return BlockResult.Fail(new InvalidFormatExceptionArgs
                     {
                         LineIndex = result.Error.LineIndex + 1 + i,  // 1 -> start below block key line
@@ -190,7 +190,7 @@ internal static class BlockInterpreter
         });
     }
 
-    private static BlockKey? NestedBlockKeyInterprete(ReferList<string> keyLinesAndAbove, out int keyLinesNum)
+    private static BlockKey? InterpretNestedBlockKey(ReferList<string> keyLinesAndAbove, out int keyLinesNum)
     {
         keyLinesNum = 1;
         var keyName = GetNestedBlockKey(keyLinesAndAbove[^1]);
@@ -235,7 +235,7 @@ internal static class BlockInterpreter
 
             if (ContextInterpreter.IsNestedBlockLine(linesBelowKey[i]))
             {
-                _ = NestedBlockKeyInterprete(linesBelowKey[..(i + 1)], out var keyLinesNum);
+                _ = InterpretNestedBlockKey(linesBelowKey[..(i + 1)], out var keyLinesNum);
                 return i - keyLinesNum;
             }
         }

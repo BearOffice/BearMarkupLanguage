@@ -113,10 +113,8 @@ internal class ListElement : IBaseElement
         }
         else
         {
-            var consInfo = targetType.GetConstructor(new[] { targetArr.GetType() });
-
-            if (consInfo is null)
-                throw new TypeNotMatchException($"No constructor found for Type {targetType}.");
+            var consInfo = targetType.GetConstructor(new[] { targetArr.GetType() }) 
+                ?? throw new TypeNotMatchException($"No constructor found for Type {targetType}.");
 
             return consInfo.Invoke(new[] { targetArr });
         }

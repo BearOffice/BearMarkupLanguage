@@ -11,17 +11,17 @@ namespace BearMarkupLanguage.Interpretation;
 
 internal class DictionaryElementInterpreter : IInterpreter
 {
-    public ElementResult Interprete(string[] lines, ParseMode mode)
+    public ElementResult Interpret(string[] lines, ParseMode mode)
     {
         return mode switch
         {
-            ParseMode.Collapse => CollapsedInterprete(lines[0]),
-            ParseMode.Expand => ExpandedInterprete(lines),
+            ParseMode.Collapse => InterpretCollapsed(lines[0]),
+            ParseMode.Expand => InterpretExpanded(lines),
             _ => throw new NotImplementedException(),
         };
     }
 
-    private static ElementResult CollapsedInterprete(string line)
+    private static ElementResult InterpretCollapsed(string line)
     {
         line = line.TrimEnd();
 
@@ -35,7 +35,7 @@ internal class DictionaryElementInterpreter : IInterpreter
 
         var tempDic = new OrderedDictionary<BasicElement, IBaseElement>();
 
-        var isSplited = true;
+        var isSplitted = true;
         var isEmpty = true;
         var tempKey = default(BasicElement);
         var valueEntry = false;
@@ -46,7 +46,7 @@ internal class DictionaryElementInterpreter : IInterpreter
 
             if (CollapsedElementHelper.IsValidStartNode(ch))
             {
-                if (!isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                if (!isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = 0,
                     CharIndex = i,
@@ -64,7 +64,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                     {
                         LineIndex = 0,
                         CharIndex = i,
-                        Message = "Missing keyvaluepair's split symbol."
+                        Message = "Missing split symbol of key value pair."
                     });
 
                 var index = CollapsedElementHelper.FindElementEndIndex(line, i);
@@ -82,7 +82,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                     content = line[i..(index + 1)];
 
                 var result = CollapsedElementHelper.GetInterpreterWithNodeSymbol(ch)
-                                                   .Interprete(new[] { content }, ParseMode.Collapse);
+                                                   .Interpret(new[] { content }, ParseMode.Collapse);
                 if (!result.IsSuccess) return ElementResult.PassToParent(result, 0, i);
 
                 if (tempKey is null)
@@ -102,7 +102,7 @@ internal class DictionaryElementInterpreter : IInterpreter
                     tempDic.Add(tempKey, result.Value);
                     tempKey = null;
                     valueEntry = false;
-                    isSplited = false;
+                    isSplitted = false;
                     isEmpty = false;
                 }
 
@@ -112,7 +112,7 @@ internal class DictionaryElementInterpreter : IInterpreter
             {
                 if (line[i..].StartsWith(ID.EmptySymbol))
                 {
-                    if (!isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                    if (!isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
                     {
                         LineIndex = 0,
                         CharIndex = i,
@@ -132,14 +132,14 @@ internal class DictionaryElementInterpreter : IInterpreter
                             Message = "Missing key symbol."
                         });
 
-                    var result = new EmptyElementInterpreter().Interprete(null, ParseMode.Collapse);
+                    var result = new EmptyElementInterpreter().Interpret(null, ParseMode.Collapse);
                     if (!result.IsSuccess) return ElementResult.PassToParent(result, 0, i);
 
                     tempDic.Add(tempKey, result.Value);
                     i = i + ID.EmptySymbol.Length - 1;
                     tempKey = null;
                     valueEntry = false;
-                    isSplited = false;
+                    isSplitted = false;
                     isEmpty = false;
                 }
                 else
@@ -161,14 +161,14 @@ internal class DictionaryElementInterpreter : IInterpreter
                     Message = "Missing value."
                 });
 
-                if (isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+                if (isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
                 {
                     LineIndex = 0,
                     CharIndex = i,
                     Message = "Unnecessary split symbol."
                 });
                 else
-                    isSplited = true;
+                    isSplitted = true;
             }
             else if (ch == ID.Key)
             {
@@ -205,7 +205,7 @@ internal class DictionaryElementInterpreter : IInterpreter
             LineIndex = 0,
             Message = "Missing value."
         });
-        if (!isEmpty && isSplited) return ElementResult.Fail(new InvalidFormatExceptionArgs
+        if (!isEmpty && isSplitted) return ElementResult.Fail(new InvalidFormatExceptionArgs
         {
             LineIndex = 0,
             Message = "Unnecessary split symbol."
@@ -214,7 +214,7 @@ internal class DictionaryElementInterpreter : IInterpreter
         return ElementResult.Success(new DictionaryElement(tempDic));
     }
 
-    private static ElementResult ExpandedInterprete(string[] lines)
+    private static ElementResult InterpretExpanded(string[] lines)
     {
         var refLines = new ReferList<string>(lines);
         var tempDic = new OrderedDictionary<BasicElement, IBaseElement>();
@@ -252,7 +252,7 @@ internal class DictionaryElementInterpreter : IInterpreter
             else
                 refLines[i] = refLines[i][(idIndex + 1)..];
 
-            var result = ContextInterpreter.ContentInterprete(refLines[i..], out var endAtIndex);
+            var result = ContextInterpreter.InterpretContent(refLines[i..], out var endAtIndex);
             if (!result.IsSuccess)
                 return ElementResult.PassToParent(result, i, 0);
 
