@@ -96,7 +96,7 @@ internal class ListElement : IBaseElement
             argumentType = arguments[0];
         }
 
-        var preferredType = IBaseElement.PreferredElementType(argumentType);
+        var preferredType = IBaseElement.PreferredElementType(argumentType, providers);
         var targetArr = Array.CreateInstance(argumentType, ElementsList.Count);
 
         for (var i = 0; i < ElementsList.Count; i++)

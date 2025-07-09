@@ -13,8 +13,11 @@ internal interface IBaseElement
     public object ConvertTo(Type targetType, IConversionProvider[] providers);
     public string[] ParseToLiteral(ParseMode mode);
 
-    internal static Type PreferredElementType(Type type)
+    internal static Type PreferredElementType(Type type, IConversionProvider[] providers)
     {
+        if (TypeConverter.TryGetProvider(type, providers, out _))
+            return typeof(BasicElement);
+
         if (type.IsListType())
         {
             if (type.IsVariableBoundArray)  // Do not support multi-dimensional array

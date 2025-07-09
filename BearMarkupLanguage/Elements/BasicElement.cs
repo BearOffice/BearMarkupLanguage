@@ -45,8 +45,9 @@ internal class BasicElement : IBaseElement, IEquatable<BasicElement>
 
     public object ConvertTo(Type targetType, IConversionProvider[] providers)
     {
-        if (IBaseElement.PreferredElementType(targetType) != typeof(BasicElement))
-            throw new TypeNotMatchException($"A basic type was expected, but type {targetType} was specified.");
+        if (IBaseElement.PreferredElementType(targetType, providers) != typeof(BasicElement))
+            throw new TypeNotMatchException($"A basic type or a provider-supported type was expected, " +
+                $"but type {targetType} was specified.");
 
         return TypeConverter.ConvertFromLiteral(Literal, targetType, providers);
     }

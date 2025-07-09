@@ -14,27 +14,24 @@ internal static class ElementConverter
     internal static IBaseElement BuildElement(object source, IConversionProvider[] providers)
     {
         if (source is null)
-        {
             return BuildEmptyElement(source, providers);
-        }
 
-        var targetType = IBaseElement.PreferredElementType(source.GetType());
-        if (targetType == typeof(BasicElement))
-        {
+        var sourceType = source.GetType();
+
+        // Build basic element for provider rule.
+        if (TypeConverter.TryGetProvider(sourceType, providers, out _))
             return BuildBasicElement(source, providers);
-        }
+
+        var targetType = IBaseElement.PreferredElementType(sourceType, providers);
+
+        if (targetType == typeof(BasicElement))
+            return BuildBasicElement(source, providers);
         else if (targetType == typeof(ListElement))
-        {
             return BuildListElement(source, providers);
-        }
         else if (targetType == typeof(DictionaryElement))
-        {
             return BuildDictionaryElement(source, providers);
-        }
         else
-        {
             throw new NotImplementedException();
-        }
     }
 
     private static BasicElement BuildBasicElement(object source, IConversionProvider[] providers)
@@ -80,7 +77,7 @@ internal static class ElementConverter
         for (var i = 0; i < count; i++)
         {
             var item = sourceType.GetMethods()
-                                 .First(item => item.Name == "GetValue" 
+                                 .First(item => item.Name == "GetValue"
                                         && item.GetParameters().Length == 1
                                         && item.GetParameters()[0].ParameterType == typeof(int))
                                  .Invoke(source, new object[] { i });
@@ -131,19 +128,13 @@ internal static class ElementConverter
     private static DictionaryElement BuildDictionaryElement(object source, IConversionProvider[] providers)
     {
         var sourceType = source.GetType();
-        
+
         if (sourceType.IsDictionaryType())
-        {
             return BuildDictionaryTypeElement(source, providers);
-        }
         else if (sourceType.IsSerializableObject())
-        {
             return BuildObjectTypeElement(source, providers);
-        }
         else
-        {
             throw new NotImplementedException();
-        }
     }
 
     private static DictionaryElement BuildDictionaryTypeElement(object source, IConversionProvider[] providers)
@@ -153,7 +144,7 @@ internal static class ElementConverter
         var count = (int)sourceType.GetProperty("Count").GetValue(source, null);
 
         var keyType = sourceType.GetGenericArguments()[0];
-        if (IBaseElement.PreferredElementType(keyType) != typeof(BasicElement))
+        if (IBaseElement.PreferredElementType(keyType, providers) != typeof(BasicElement))
             throw new TypeNotSupportException($"Do not support the type of key as {keyType}. Consider a basic type.");
 
         var tempArr = Array.CreateInstance(typeof(KeyValuePair<BasicElement, IBaseElement>), count);

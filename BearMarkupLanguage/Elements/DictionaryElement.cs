@@ -84,8 +84,8 @@ internal class DictionaryElement : IBaseElement
         var keyType = arguments[0];
         var valueType = arguments[1];
 
-        var preferredKeyType = IBaseElement.PreferredElementType(keyType);
-        var preferredValueType = IBaseElement.PreferredElementType(valueType);
+        var preferredKeyType = IBaseElement.PreferredElementType(keyType, providers);
+        var preferredValueType = IBaseElement.PreferredElementType(valueType, providers);
 
         if (preferredKeyType != typeof(BasicElement))
             throw new TypeNotSupportException($"Do not support the type of key as {keyType}. Consider a basic type.");
