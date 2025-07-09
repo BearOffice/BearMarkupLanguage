@@ -5,6 +5,8 @@ BearML is an original markup language. Language detail: [Wiki](../../wiki/Bear-M
 BearML version 5.0 <b>does not</b> compatible with version 3.0.
 <br>
 
+https://www.nuget.org/packages/BearMarkupLanguage
+
 # How to use (part)
 ## Get values from config file
 config.txt  
