@@ -251,8 +251,19 @@ internal class DictionaryElement : IBaseElement
             }
             else if (elem is DictionaryElement)
             {
-                tempList.Add(key + ID.Key + " " + ID.ExpandedDicSymbol);
-                tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+                switch (elemParseMode)
+                {
+                    case ParseMode.Collapse:
+                        tempList.Add(key + ID.Key);
+                        tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+                        break;
+                    case ParseMode.Expand:
+                        tempList.Add(key + ID.Key + " " + ID.ExpandedDicSymbol);
+                        tempList.AddRange(elemLiteral.IncrOrDecrDepth(1));
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
             }
             else
             {
